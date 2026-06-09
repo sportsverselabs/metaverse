@@ -1,0 +1,28 @@
+# Sportsverse OS — Python dependencies
+#
+# The Phase 1 SKELETON runs on the Python standard library alone — you do NOT need to
+# install anything to run `python main.py`. The packages below are for LATER phases;
+# install each one only when the matching feature is actually built.
+
+# --- Testing (install to run `pytest`) ---
+# pytest>=7.4
+
+# --- LLM providers (Phase 2: enable real LLMRouter.complete) ---
+# Provider chosen by owner: DeepSeek (OpenAI-compatible -> uses the `openai` SDK).
+openai>=1.0          # INSTALLED 2026-06-08 — required for DeepSeek (and OpenAI) live mode
+# anthropic>=0.40    # only needed if switching to Anthropic/Claude
+
+# --- Orchestration engine (Phase 4; OPTIONAL) ---
+# The system runs the SAME node graph via a built-in fallback runner with zero extra deps.
+# Install langgraph only if you want the real LangGraph engine (auto-detected when present).
+# langgraph>=0.2
+
+# --- NVIDIA Nemotron / NeMo (Phase 4; OPTIONAL) ---
+# Disabled by default (NEMOTRON_ENABLED=false). Uses the `openai` SDK (already installed)
+# pointed at NEMOTRON_BASE_URL (NIM is OpenAI-compatible). No extra package required.
+
+# --- HTTP client (Telegram sending, web research) ---
+# requests>=2.31
+
+# --- Optional .env loader (a pure-Python fallback is already built into core/config.py) ---
+# python-dotenv>=1.0

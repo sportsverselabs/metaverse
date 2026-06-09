@@ -1,0 +1,2 @@
+# Keeps the memory/store/ folder in version control while stored memories stay ignored.
+# Memory files live here (Phase 1+). See ../memory_schema.md.

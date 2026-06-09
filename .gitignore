@@ -1,0 +1,55 @@
+# ── Secrets ── (never commit real secrets)
+.env
+.env.local
+*.key
+*.pem
+secrets/
+config/secrets*
+
+# ── Logs & runtime ──
+logs/*
+!logs/.gitkeep
+*.log
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Node ──
+node_modules/
+npm-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# ── OS / editor cruft ──
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ── Local data / scratch ──
+tmp/
+*.local
+memory/store/*
+!memory/store/.gitkeep
+
+# ── Owner-review queue (runtime data; drafts, not secrets) ──
+reports/review/*
+!reports/review/.gitkeep
+
+# ── Scheduler slots (runtime data) ──
+reports/schedule/*
+!reports/schedule/.gitkeep
+
+# ── Approval queue (runtime data) ──
+reports/approvals/*
+!reports/approvals/.gitkeep

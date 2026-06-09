@@ -1,0 +1,21 @@
+{
+  "_comment": "Non-secret defaults for Sportsverse OS. Copy to settings.json to override. NEVER put secrets here — secrets go in .env.",
+  "env": "local",
+  "log_level": "info",
+  "project": "sportsverse-os",
+  "phase": 2,
+  "llm_mode": "mock",
+  "safety": {
+    "require_human_approval_before_publishing": true,
+    "dm_replies_templates_only": true,
+    "integrations_dry_run": true,
+    "llm_mock_by_default": true,
+    "block_high_risk_skills": true
+  },
+  "llm_routes": {
+    "general": ["anthropic", "claude-sonnet-4-6"],
+    "reasoning": ["anthropic", "claude-opus-4-8"],
+    "research": ["deepseek", "deepseek-chat"],
+    "cheap": ["openai", "gpt-4o-mini"]
+  }
+}

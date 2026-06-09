@@ -1,0 +1,21 @@
+{
+  "_comment": "Business context for the project. Non-secret. Read by agents/Jarvis for brand-aware drafts.",
+  "business_name": "SportVerse Labs",
+  "project_name": "SportsVersusNews",
+  "domain": "sportsversusnews.com",
+  "contact_email": "sportverselabs@gmail.com",
+  "hosting": "Hostinger",
+  "vps": "Hostinger VPS",
+  "channels": {
+    "youtube": "@PlatinumClips_SV"
+  },
+  "primary_media_channel": "Platinum Clips (YouTube @PlatinumClips_SV)",
+  "default_llm": "deepseek",
+  "high_reasoning_llm": "nemotron",
+  "owner_planning_tool": "ChatGPT Plus",
+  "command_layer": "Jarvis",
+  "executive_agent": "Hermes",
+  "primary_comms": "Telegram",
+  "goal": "A low-cost, AI-assisted sports/news automation business with gated automation and a human-in-the-loop.",
+  "notes": "SportVerse Labs operates the SportsVersusNews brand. All publishing is owner-approved; nothing posts autonomously."
+}

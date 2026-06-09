@@ -1,0 +1,3 @@
+# Keeps the reports/review/ folder in version control while queued drafts stay ignored.
+# The owner-review surface writes draft review items here (and to ./archive/) at runtime.
+# See ../../review/ for the code and ../../docs / PROJECT_DNA.md for context.

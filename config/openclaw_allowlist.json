@@ -1,0 +1,21 @@
+{
+  "_comment": "Allowlist of OpenClaw skills Hermes has approved. ALL skills not listed here with allowed=true are BLOCKED by default. Adding a skill here is a gated action (requires owner approval). Skills may NEVER access secrets, API keys, shell, the production database, or payments unless that capability is explicitly approved below.",
+  "default_policy": "block",
+  "skills": {
+    "sports_topic_research_draft": {
+      "allowed": true,
+      "risk": "low",
+      "capabilities": ["create_draft"],
+      "notes": "draft-only; no external actions"
+    },
+    "video_idea_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"] },
+    "script_outline_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"] },
+    "affiliate_product_research_draft": { "allowed": true, "risk": "medium", "capabilities": ["create_draft"] },
+    "compliance_review_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"] },
+    "daily_report_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"] }
+  },
+  "forbidden_capabilities": [
+    "secrets", "api_keys", "shell", "production_database", "payments",
+    "publish", "post", "send_email", "deploy", "install"
+  ]
+}

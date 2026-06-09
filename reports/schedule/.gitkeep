@@ -1,0 +1,3 @@
+# Keeps the reports/schedule/ folder in version control while proposed/confirmed slots stay
+# ignored. The scheduler (../../scheduler/) writes slot JSON files here at runtime.
+# Slots record WHEN an approved item should go out — they never publish anything.

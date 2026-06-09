@@ -1,0 +1,2 @@
+# Keeps the logs/ folder in version control while its contents stay ignored.
+# Runtime logs are written here (Phase 1+) and are gitignored.

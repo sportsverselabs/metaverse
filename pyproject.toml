@@ -1,0 +1,14 @@
+[project]
+name = "sportsverse-os"
+version = "0.1.0"
+description = "Portable AI-agent operating system for the Sportsverse venture (Phase 1 skeleton)."
+requires-python = ">=3.9"
+# Phase 1 skeleton runs on the standard library alone. Optional runtime deps are listed
+# in requirements.txt and added per-feature in later phases.
+dependencies = []
+
+[tool.pytest.ini_options]
+# Make the project root importable so `import core`, `import agents`, etc. work.
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"

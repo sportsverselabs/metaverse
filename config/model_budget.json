@@ -1,0 +1,12 @@
+{
+  "_comment": "Cost controls for the model router. Prices are USD per 1,000 tokens (approximate; tune to your provider's actual rates). The router uses these to ESTIMATE task cost and gate over-budget tasks to human approval. Edit freely.",
+  "currency": "USD",
+  "monthly_budget_usd": 20.0,
+  "per_task_approval_threshold_usd": 0.50,
+  "assumed_completion_tokens": 600,
+  "prices_per_1k_tokens": {
+    "deepseek": { "input": 0.00027, "output": 0.0011 },
+    "nemotron": { "input": 0.001, "output": 0.003 },
+    "mock": { "input": 0.0, "output": 0.0 }
+  }
+}

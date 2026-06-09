@@ -1,0 +1,2 @@
+# Keeps reports/approvals/ in version control while approval-request JSON files stay ignored.
+# The approval queue (../../approval/) writes one JSON per gated-action request here at runtime.
