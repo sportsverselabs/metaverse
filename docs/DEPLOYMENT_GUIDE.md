@@ -1,7 +1,7 @@
 # SportVerse Labs — Deployment Guide (Hostinger VPS)
 
 Goal: run the system continuously on your Hostinger VPS, controlled via Telegram, with the
-dashboard and (later) website on sportsversusnews.com. **Nothing publishes without your approval.**
+dashboard and (later) website on sportsversenews.com. **Nothing publishes without your approval.**
 
 > The Deployment Agent will ask you for each missing item in plain English, one at a time.
 
@@ -30,8 +30,8 @@ dashboard and (later) website on sportsversusnews.com. **Nothing publishes witho
 8. **Reverse proxy + SSL (for the website/dashboard):** install nginx + certbot:
    ```
    sudo apt install -y nginx certbot python3-certbot-nginx
-   # proxy_pass http://127.0.0.1:8787; for dashboard.sportsversusnews.com
-   sudo certbot --nginx -d sportsversusnews.com -d www.sportsversusnews.com
+   # proxy_pass http://127.0.0.1:8787; for dashboard.sportsversenews.com
+   sudo certbot --nginx -d sportsversenews.com -d www.sportsversenews.com
    ```
 9. **DNS:** in Hostinger, add A records (`@`, `www`, `dashboard`) → your VPS IP
    (the DNS agent prints exact records; `DnsWebsiteAgent.instructions(<ip>)`).

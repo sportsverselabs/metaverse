@@ -12,8 +12,8 @@ Everything the system needs, where it goes, and current status. **Secrets live o
 | 4 | Telegram chat id | `.env` `TELEGRAM_CHAT_ID` | restrict control to you | ⏳ needed |
 | 5 | GitHub repo URL (**new account**) | `scripts/backup_github.sh` arg | code backup | ⏳ needed |
 | 6 | GitHub token (if private) | git credential helper | push to private repo | ⏳ if private |
-| 7 | Hostinger VPS IP (**new VPS**) | deploy / DNS | deployment | ⏳ needed |
-| 8 | VPS username + SSH login | SSH | deployment | ⏳ needed |
+| 7 | Hostinger VPS IP (**new VPS**) | `.env` `VPS_HOST` (gitignored; not committed) | deployment | ✅ provided |
+| 8 | VPS username (`root`) + SSH login | SSH (owner-side) | deployment | ✅ provided |
 | 9 | Hostinger DNS access | Hostinger panel | connect domain | ⏳ needed |
 | 10 | Nemotron API key + base URL | `.env` `NEMOTRON_*` | optional hard reasoning | ⚪ optional (off) |
 | 11 | YouTube API credentials | `.env` (Phase 5) | publishing | 🔒 Phase 5 |

@@ -1,6 +1,6 @@
 # SportVerse Labs — System Architecture
 
-**Business:** SportVerse Labs · **Brand:** SportsVersusNews · **Domain:** sportsversusnews.com
+**Business:** SportVerse Labs · **Brand:** SportsVersusNews · **Domain:** sportsversenews.com
 **Executive agent:** Hermes · **Command layer:** Jarvis · **Default model:** DeepSeek · **Engine:** LangGraph (optional, fallback built-in)
 
 ---

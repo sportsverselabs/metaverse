@@ -16,9 +16,11 @@ confirm() { read -r -p "$1 [y/N] " a; [ "$a" = "y" ] || [ "$a" = "Y" ]; }
 command -v "$PY" >/dev/null || { echo "ERROR: python3 not found. Install it first."; exit 1; }
 command -v git >/dev/null || echo "NOTE: git not found (needed for backups)."
 
-# 2) Dependencies (DeepSeek uses the openai SDK)
+# 2) Dependencies (DeepSeek uses the openai SDK). Handles PEP 668 (externally-managed) systems.
 if confirm "Install Python dependency 'openai' (for DeepSeek live mode)?"; then
-  "$PY" -m pip install --user openai
+  "$PY" -m pip install --user openai 2>/dev/null \
+    || "$PY" -m pip install --break-system-packages openai \
+    || { echo "pip install failed — try: apt install -y python3-pip"; }
 fi
 
 # 3) .env
@@ -59,6 +61,6 @@ fi
 
 # 6) Dashboard (optional, behind a reverse proxy + SSL — see docs/DEPLOYMENT_GUIDE.md)
 echo "To run the dashboard:  $PY -m dashboard --host 127.0.0.1 --port 8787"
-echo "Then put nginx + certbot in front for https on sportsversusnews.com."
+echo "Then put nginx + certbot in front for https on sportsversenews.com."
 
 echo "== Deploy steps complete. Send /status to your Telegram bot to confirm control. =="

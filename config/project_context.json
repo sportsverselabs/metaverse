@@ -2,7 +2,7 @@
   "_comment": "Business context for the project. Non-secret. Read by agents/Jarvis for brand-aware drafts.",
   "business_name": "SportVerse Labs",
   "project_name": "SportsVersusNews",
-  "domain": "sportsversusnews.com",
+  "domain": "sportsversenews.com",
   "contact_email": "sportverselabs@gmail.com",
   "hosting": "Hostinger",
   "vps": "Hostinger VPS",

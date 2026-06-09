@@ -15,7 +15,7 @@ external drives, VPS servers, and different coding tools/agents without losing c
 
 ## Status
 
-- **Project:** SportsVersusNews (sportsversusnews.com) — see `config/project_context.json`
+- **Project:** SportsVersusNews (sportsversenews.com) — see `config/project_context.json`
 - **Phase:** 4 complete — Hermes Multi-Agent Operating Core (Jarvis + LangGraph + cost router + gates)
 - **Last updated:** 2026-06-09
 - **LLM:** **DeepSeek live and verified**; Nemotron optional (disabled); mock fallback intact.
