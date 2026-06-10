@@ -5,8 +5,26 @@
 
 | Field | Value |
 |---|---|
-| Last updated | 2026-06-09 |
+| Last updated | 2026-06-10 |
 | Updated by | Coding Agent (Claude Code / Opus 4.8) |
+
+---
+
+## 🟢 LIVE / DEPLOYED (2026-06-10)
+The system is **deployed and operating in production** on the Hostinger VPS.
+
+- **Backed up to GitHub:** github.com/sportsverselabs/metaverse (public; secrets excluded via .gitignore).
+- **VPS:** Hostinger Ubuntu 24.04 at the IP in `.env` `VPS_HOST`. Code at `/root/metaverse`, deps in `.venv`.
+  Agent's SSH key is in root's `authorized_keys` (key `id_ed25519`). 100 tests pass on the server.
+- **DeepSeek:** live & verified on the VPS (`LLM_MODE=live`).
+- **Telegram bot:** `@Sportsversebot` — systemd service `sportverse` (run_telegram.py), running 24/7,
+  locked to the owner's chat id. Token in VPS `.env`.
+- **Website/dashboard:** nginx reverse-proxy → `sportverse-dashboard` service (read-only dashboard on
+  127.0.0.1:8787), HTTP-basic-auth protected, HTTPS via Let's Encrypt (auto-renew). Live at
+  **https://sportsversenews.com**, `www`, and `dashboard.` subdomain. Config files in `deployment/`.
+- **Domain:** sportsversenews.com (A records @/www/dashboard → VPS). SSL OK; HTTP→HTTPS redirect.
+- **Secrets** (DeepSeek key, Telegram token, dashboard password) live ONLY in VPS `.env` / `/etc/nginx/.htpasswd`
+  — never committed. To redeploy/update: `cd /root/metaverse && git pull && systemctl restart sportverse sportverse-dashboard`.
 
 ---
 

@@ -1,0 +1,14 @@
+[Unit]
+Description=SportVerse Labs - Owner Dashboard (read-only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/metaverse
+ExecStart=/root/metaverse/.venv/bin/python3 -m dashboard --host 127.0.0.1 --port 8787
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
