@@ -4,6 +4,7 @@ import time
 
 import pytest
 
+from sports.api_football_client import APIFootballClient, APIFootballError
 from sports.cache import SportsCache
 from sports.espn_client import ESPNClient, ESPNError
 from sports.health import SportsApiHealthMonitor
@@ -76,6 +77,56 @@ def test_hub_serves_stale_on_failure(tmp_path):
     down_hub.ttl["scoreboard"] = 0
     res = down_hub.scoreboard("NBA")
     assert res["ok"] and res["stale"] is True and "unavailable" in res["warning"]
+
+
+_AF_LIVE = {"errors": [], "response": [{
+    "fixture": {"date": "2026-06-15T20:00Z", "status": {"long": "Second Half", "short": "2H", "elapsed": 67}},
+    "league": {"name": "Premier League", "country": "England"},
+    "teams": {"home": {"name": "Arsenal"}, "away": {"name": "Chelsea"}},
+    "goals": {"home": 2, "away": 1},
+}]}
+_AF_ERROR = {"errors": {"token": "invalid key"}, "response": []}
+
+
+def test_api_football_normalization_and_error():
+    client = APIFootballClient(api_key="x", fetch=lambda path, params: _AF_LIVE)
+    games = client.live_fixtures()
+    assert games[0]["home"] == "Arsenal" and games[0]["score_home"] == 2
+    assert games[0]["league"] == "Premier League" and games[0]["elapsed"] == 67
+    bad = APIFootballClient(api_key="x", fetch=lambda path, params: _AF_ERROR)
+    with pytest.raises(APIFootballError):
+        bad.live_fixtures()
+
+
+def test_api_football_requires_key():
+    assert APIFootballClient(api_key=None).configured is False
+    with pytest.raises(APIFootballError):
+        APIFootballClient(api_key=None).live_fixtures()
+
+
+def test_hub_football_live_via_injected_client(tmp_path):
+    client = APIFootballClient(api_key="x", fetch=lambda path, params: _AF_LIVE)
+    hub = SportsDataHub(
+        cache=SportsCache(tmp_path / "c.db"),
+        espn=ESPNClient(fetch=lambda url: {"events": []}),
+        football=client,
+        health=SportsApiHealthMonitor(state_path=tmp_path / "h.json"),
+    )
+    assert hub.football_configured() is True
+    res = hub.football_live()
+    assert res["ok"] and res["data"][0]["home"] == "Arsenal"
+    assert "API-Football" in hub.providers_status()
+
+
+def test_hub_without_football_key(tmp_path):
+    hub = SportsDataHub(
+        cache=SportsCache(tmp_path / "c.db"),
+        espn=ESPNClient(fetch=lambda url: {"events": []}),
+        health=SportsApiHealthMonitor(state_path=tmp_path / "h.json"),
+    )
+    assert hub.football_configured() is False
+    assert hub.football_live()["ok"] is False
+    assert hub.providers_status()["API-Football"]["state"] == "needs API key"
 
 
 def test_health_alerts_after_three_failures(tmp_path):

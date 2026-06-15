@@ -189,11 +189,15 @@ class DashboardData:
         try:
             from sports.espn_client import LEAGUES
             hub = self.sports_hub
+            football_live = hub.football_live() if hub.football_configured() else {"ok": False, "data": []}
+            football_status = hub.football_status() if hub.football_configured() else {"ok": False, "data": None}
             return {
                 "providers": hub.providers_status(),
                 "live_games": hub.live_games(),
                 "upcoming_games": hub.upcoming_games()[:12],
                 "latest_news": hub.latest_news(per_league=2)[:12],
+                "football_live": (football_live.get("data") or [])[:12],
+                "football_status": football_status.get("data"),
                 "leagues": list(LEAGUES),
             }
         except Exception as exc:  # pragma: no cover - safety net

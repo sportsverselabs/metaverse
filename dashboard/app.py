@@ -285,11 +285,25 @@ def _r_sports(s):
     news = "".join(
         f"<div class=row><h4>{_esc(n['headline'])}</h4><div class=meta>{_esc(n.get('league',''))}</div></div>"
         for n in s.get("latest_news", [])) or "<p class=muted>No news loaded.</p>"
+    def fgame(g):
+        return (f"<div class=row><h4>{_esc(g.get('home'))} {_esc(g.get('score_home'))} – "
+                f"{_esc(g.get('score_away'))} {_esc(g.get('away'))}</h4>"
+                f"<div class=meta>{_esc(g.get('league',''))} · {_esc(g.get('status',''))}"
+                + (f" {g['elapsed']}'" if g.get('elapsed') else "") + "</div></div>")
+    flive = s.get("football_live") or []
+    fstatus = s.get("football_status")
+    football_block = ""
+    if fstatus:
+        football_block += (f"<div class=note>API-Football plan: {_esc(fstatus.get('plan'))} · "
+                           f"requests today {_esc(fstatus.get('requests_today'))}/"
+                           f"{_esc(fstatus.get('requests_limit'))}</div>")
+    football_rows = "".join(fgame(g) for g in flive) or "<p class=muted>No live soccer matches right now.</p>"
     return (f"<h2>Sports Data</h2><p class=muted>ESPN + API-Football via the Sports Data Hub "
             f"(cached; serves last-known data if a provider is down). Agents read the Hub, never the APIs directly.</p>"
             f"<button class=btnsm onclick=\"go('sports')\">Manual refresh</button>"
             f"<h3 style='margin:18px 0 10px'>Providers</h3>{prov}"
-            f"<h3 style='margin:22px 0 10px'>Live games</h3>{live}"
+            f"<h3 style='margin:22px 0 10px'>Live games (ESPN)</h3>{live}"
+            f"<h3 style='margin:22px 0 10px'>Live soccer (API-Football)</h3>{football_block}{football_rows}"
             f"<h3 style='margin:22px 0 10px'>Upcoming</h3>{upcoming}"
             f"<h3 style='margin:22px 0 10px'>Latest news</h3>{news}")
 

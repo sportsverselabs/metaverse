@@ -14,9 +14,13 @@ import time
 from pathlib import Path
 from typing import Callable, Optional
 
+from sports.api_football_client import APIFootballClient, APIFootballError
 from sports.cache import SportsCache
 from sports.espn_client import LEAGUES, ESPNClient, ESPNError
 from sports.health import SportsApiHealthMonitor
+
+# Provider errors the read-through loop knows how to handle (record + serve stale).
+_PROVIDER_ERRORS = (ESPNError, APIFootballError)
 
 DEFAULT_TTL = {"scoreboard": 60, "news": 600, "teams": 86400}
 _CONFIG_FILE = Path("config") / "sports.json"
@@ -49,11 +53,18 @@ def default_telegram_alert(config=None) -> Optional[Callable[[str], None]]:
 class SportsDataHub:
     def __init__(self, config=None, cache: Optional[SportsCache] = None,
                  espn: Optional[ESPNClient] = None,
+                 football: Optional[APIFootballClient] = None,
                  health: Optional[SportsApiHealthMonitor] = None,
                  alert: Optional[Callable[[str], None]] = None) -> None:
         self.config = config
         self.cache = cache or SportsCache()
         self.espn = espn or ESPNClient()
+        # API-Football is built only when a key exists (server-side only, never logged).
+        if football is not None:
+            self.football = football
+        else:
+            key = config.secret("API_FOOTBALL_KEY") if config else None
+            self.football = APIFootballClient(api_key=key) if key else None
         self.health = health or SportsApiHealthMonitor(
             on_alert=alert if alert is not None else default_telegram_alert(config))
         self.ttl = _load_ttl()
@@ -70,7 +81,7 @@ class SportsDataHub:
             self.health.record_ok(provider.name, (time.time() - t0) * 1000)
             self.cache.set(key, data)
             return {"ok": True, "data": data, "cached": False, "stale": False, "age": 0.0}
-        except ESPNError as exc:
+        except _PROVIDER_ERRORS as exc:
             self.health.record_failure(provider.name, str(exc))
             stale = self.cache.get_stale(key)
             if stale is not None:
@@ -87,6 +98,27 @@ class SportsDataHub:
 
     def teams(self, league: str) -> dict:
         return self._read(self.espn, "teams", f"espn:teams:{league}", self.ttl["teams"], league)
+
+    # ---- API-Football-backed reads ---------------------------------- #
+    def football_configured(self) -> bool:
+        return self.football is not None
+
+    def football_live(self) -> dict:
+        if not self.football:
+            return {"ok": False, "data": [], "error": "API-Football key not configured"}
+        return self._read(self.football, "live_fixtures", "apifootball:live", self.ttl["scoreboard"])
+
+    def football_status(self) -> dict:
+        if not self.football:
+            return {"ok": False, "data": None, "error": "API-Football key not configured"}
+        # Status reflects the account/quota; cache briefly to avoid burning the daily quota.
+        return self._read(self.football, "status", "apifootball:status", 300)
+
+    def football_standings(self, league: int, season: int) -> dict:
+        if not self.football:
+            return {"ok": False, "data": [], "error": "API-Football key not configured"}
+        return self._read(self.football, "standings", f"apifootball:standings:{league}:{season}",
+                          self.ttl["news"], league, season)
 
     # ---- aggregates -------------------------------------------------- #
     def _games_by_state(self, states: set[str], leagues: Optional[list[str]] = None) -> list[dict]:
@@ -121,7 +153,9 @@ class SportsDataHub:
         status.setdefault("ESPN", {"state": "unknown", "healthy": True, "last_ok": None,
                                     "last_error": None, "last_latency_ms": None,
                                     "consecutive_failures": 0, "total_calls": 0, "total_failures": 0})
-        status.setdefault("API-Football", {"state": "needs API key", "healthy": True, "last_ok": None,
-                                           "last_error": "API-Football key not configured", "last_latency_ms": None,
+        af_default_state = "unknown" if self.football else "needs API key"
+        af_err = None if self.football else "API-Football key not configured"
+        status.setdefault("API-Football", {"state": af_default_state, "healthy": True, "last_ok": None,
+                                           "last_error": af_err, "last_latency_ms": None,
                                            "consecutive_failures": 0, "total_calls": 0, "total_failures": 0})
         return status
