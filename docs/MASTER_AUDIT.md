@@ -85,7 +85,9 @@ Brand: **Sportsverse**. Owner: sportsverseceo@gmail.com.
 - ✅ **ESPN layer LIVE** (2026-06-15): `sports/` — ESPN client (keyless), SQLite cache + stale fallback,
   health monitor with 3-failure Telegram alerts, `SportsDataHub` broker. Deployed; verified on the VPS
   (12 ESPN calls, 0 failures, ~62ms). Dashboard **Sports Data** page live; ESPN + API-Football on Home.
-- ⏳ **API-Football** — client not built; needs `API_FOOTBALL_KEY` (owner).
+- ✅ **API-Football LIVE** (2026-06-15): `sports/api_football_client.py` wired into the Hub (key
+  server-side only). Verified on the VPS — key valid (Free plan, 100 req/day), pulled 3 live matches.
+  Dashboard Sports Data page shows live soccer + plan/quota.
 - Design as specified: `ESPN + API-Football → Sports Data Hub → SQLite cache → Hermes → Dashboard / Content / Video`.
   Agents call the **Hub only**, never the APIs directly (enforced by design).
 
@@ -128,11 +130,12 @@ Per new feature: `git pull` + restart service. Add SQLite path + sports env vars
 new dashboard sections. No new infra needed.
 
 ### 7. Estimated completion percentage
-**~72%** of this master vision (up from ~60–65%). Core OS ≈ 95%; sports-data layer ≈ 50% (ESPN done,
-API-Football pending key); dashboard ≈ 95% (16/16 sections; Video/Analytics still placeholders);
-publishing ≈ 15%; external skills ≈ 0%.
+**~78%** of this master vision. Core OS ≈ 95%; sports-data layer ≈ 90% (ESPN + API-Football live;
+remaining: wire data into agents + IP allowlist); dashboard ≈ 95% (16/16 sections; Video/Analytics
+still placeholders); publishing ≈ 15%; external skills ≈ 0%.
 
 ### 8. Recommended next action
-Provide the **API-Football API key** so I can build + wire that client into the Hub (the only missing
-sports provider). In parallel I can: (a) wire ESPN data into the Content/Research agents, or (b) start
-**YouTube** publishing (Phase 5). Domain confirmed as `sportsversenews.com` (no change needed).
+Sports data is fully connected (ESPN + API-Football live). Next high-value options:
+(a) **wire sports data into the Content/Research agents** so Hermes drafts from real scores/news,
+(b) start **YouTube** publishing (Phase 5), or (c) vet + install the external skills.
+Domain confirmed `sportsversenews.com`.
