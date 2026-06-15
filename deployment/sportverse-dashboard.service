@@ -1,5 +1,5 @@
 [Unit]
-Description=Sportsverse - Owner Dashboard (read-only)
+Description=Sportsverse - Owner Command Center (login + Telegram 2FA)
 After=network-online.target
 Wants=network-online.target
 
