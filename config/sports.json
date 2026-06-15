@@ -1,0 +1,10 @@
+{
+  "_comment": "Sportsverse sports-data config. ESPN is keyless. API-Football needs API_FOOTBALL_KEY in .env.",
+  "leagues": ["NFL", "NBA", "MLB", "NHL", "MLS", "Premier League"],
+  "ttl_seconds": {
+    "scoreboard": 60,
+    "news": 600,
+    "teams": 86400
+  },
+  "alert_threshold_consecutive_failures": 3
+}

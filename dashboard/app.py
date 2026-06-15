@@ -250,9 +250,53 @@ def _r_manual(s):
     return f"<h2>System Manual</h2><p class=muted>Docs (in the repo):</p><ul>{docs}</ul><h3 style='margin:18px 0 10px'>Agent directory</h3>{agents}"
 
 
+def _r_skills(s):
+    def row(sk):
+        meta = sk.get("purpose") or sk.get("capabilities") or ""
+        extra = f" · risk {sk['risk']}" if sk.get("risk") else ""
+        return (f"<div class=row><h4>{_esc(sk['skill'])}</h4>"
+                f"<div class=meta>{_esc(sk['status'])}{_esc(extra)} · {_esc(sk.get('agent',''))}</div>"
+                f"<div class=meta>{_esc(meta)}</div></div>")
+    installed = "".join(row(sk) for sk in s["installed"]) or "<p class=muted>No skills installed.</p>"
+    pending = "".join(row(sk) for sk in s["pending"])
+    return (f"<h2>Skills</h2><div class=note>{_esc(s['note'])}</div>"
+            f"<h3 style='margin:16px 0 10px'>Installed (OpenClaw approved)</h3>{installed}"
+            f"<h3 style='margin:22px 0 10px'>Requested — pending review</h3>{pending}")
+
+
+def _r_sports(s):
+    if s.get("error"):
+        return f"<h2>Sports Data</h2><div class=note>{_esc(s['error'])}</div>"
+    def pdot(st):
+        return "ok" if st in ("online",) else ("off" if st in ("unknown", "needs API key") else "warn")
+    prov = "".join(
+        f"<div class=st><span><span class='dot {pdot(p.get('state',''))}'></span>{_esc(name)}</span>"
+        f"<span>{_esc(p.get('state','?'))}"
+        + (f" · {p['consecutive_failures']} fails" if p.get('consecutive_failures') else "")
+        + (f" · {p['last_latency_ms']}ms" if p.get('last_latency_ms') else "")
+        + "</span></div>"
+        for name, p in (s.get("providers") or {}).items())
+    def game(g):
+        return (f"<div class=row><h4>{_esc(g['away']['team'])} {_esc(g['away'].get('score') or '')} @ "
+                f"{_esc(g['home']['team'])} {_esc(g['home'].get('score') or '')}</h4>"
+                f"<div class=meta>{_esc(g.get('league',''))} · {_esc(g.get('status',''))}</div></div>")
+    live = "".join(game(g) for g in s.get("live_games", [])) or "<p class=muted>No live games right now.</p>"
+    upcoming = "".join(game(g) for g in s.get("upcoming_games", [])) or "<p class=muted>No upcoming games loaded.</p>"
+    news = "".join(
+        f"<div class=row><h4>{_esc(n['headline'])}</h4><div class=meta>{_esc(n.get('league',''))}</div></div>"
+        for n in s.get("latest_news", [])) or "<p class=muted>No news loaded.</p>"
+    return (f"<h2>Sports Data</h2><p class=muted>ESPN + API-Football via the Sports Data Hub "
+            f"(cached; serves last-known data if a provider is down). Agents read the Hub, never the APIs directly.</p>"
+            f"<button class=btnsm onclick=\"go('sports')\">Manual refresh</button>"
+            f"<h3 style='margin:18px 0 10px'>Providers</h3>{prov}"
+            f"<h3 style='margin:22px 0 10px'>Live games</h3>{live}"
+            f"<h3 style='margin:22px 0 10px'>Upcoming</h3>{upcoming}"
+            f"<h3 style='margin:22px 0 10px'>Latest news</h3>{news}")
+
+
 _RENDERERS = {
     "home": _r_home, "ask": _r_ask, "approvals": _r_approvals, "pipeline": _r_pipeline,
     "video": _r_video, "publishing": _r_publishing, "analytics": _r_analytics, "reports": _r_reports,
-    "agents": _r_agents, "security": _r_security, "costs": _r_costs, "backups": _r_backups,
-    "settings": _r_settings, "manual": _r_manual,
+    "agents": _r_agents, "skills": _r_skills, "sports": _r_sports, "security": _r_security,
+    "costs": _r_costs, "backups": _r_backups, "settings": _r_settings, "manual": _r_manual,
 }

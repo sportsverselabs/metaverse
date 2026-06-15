@@ -21,6 +21,7 @@ SECTIONS = [
     ("home", "Home"), ("ask", "Ask Hermes"), ("approvals", "Approvals"),
     ("pipeline", "Content Pipeline"), ("video", "Video Review"), ("publishing", "Publishing"),
     ("analytics", "Analytics"), ("reports", "Reports"), ("agents", "Agents"),
+    ("skills", "Skills"), ("sports", "Sports Data"),
     ("security", "Security"), ("costs", "Costs"), ("backups", "Backups"),
     ("settings", "Settings"), ("manual", "System Manual"),
 ]
@@ -40,6 +41,15 @@ class DashboardData:
         self.docs = DocumentationAgent()
         self.cost = CostTracker()
         self.journal = AgentJournal()
+        self._sports_hub = None
+
+    @property
+    def sports_hub(self):
+        # Built lazily: avoids network/Telegram setup unless the Sports Data page is opened.
+        if self._sports_hub is None:
+            from sports.hub import SportsDataHub
+            self._sports_hub = SportsDataHub(config=self.config)
+        return self._sports_hub
 
     # ---- helpers ----------------------------------------------------- #
     def _today_rows(self):
@@ -60,6 +70,7 @@ class DashboardData:
             lg = "online (built-in engine)"
         tg = bool(c.secret("TELEGRAM_BOT_TOKEN"))
         email = bool(c.secret("EMAIL_APP_PASSWORD") and c.get("EMAIL_ADDRESS"))
+        apifootball = bool(c.secret("API_FOOTBALL_KEY"))
         def st(ok, good="online", bad="needs setup"):
             return good if ok else bad
         return [
@@ -73,6 +84,9 @@ class DashboardData:
             {"name": "Nemotron / NeMo", "state": "ok" if nem else "off", "status": "enabled" if nem else "disabled (optional)"},
             {"name": "LangGraph", "state": "ok", "status": lg},
             {"name": "OpenClaw", "state": "ok", "status": "allowlist active"},
+            {"name": "ESPN", "state": "ok", "status": "online (keyless)"},
+            {"name": "API-Football", "state": "ok" if apifootball else "warn",
+             "status": "live" if apifootball else "needs API key"},
         ]
 
     # ---- sections ---------------------------------------------------- #
@@ -164,10 +178,55 @@ class DashboardData:
                 "note": "Secrets are never shown. Edit .env on the server to change keys."}
 
     def manual(self) -> dict:
-        return {"docs": ["docs/ARCHITECTURE.md", "docs/DASHBOARD_GUIDE.md", "docs/USER_MANUAL.md",
-                         "docs/AGENT_DIRECTORY.md", "docs/DEPLOYMENT_GUIDE.md", "docs/ACCOUNT_INVENTORY.md",
-                         "docs/MEDIA_LICENSE_POLICY.md", "docs/ARCHITECTURE_AUDIT.md", "docs/RECOVERY_GUIDE.md"],
+        return {"docs": ["docs/ARCHITECTURE.md", "docs/SPORTS_DATA_HUB.md", "docs/DASHBOARD_GUIDE.md",
+                         "docs/USER_MANUAL.md", "docs/AGENT_DIRECTORY.md", "docs/DEPLOYMENT_GUIDE.md",
+                         "docs/ACCOUNT_INVENTORY.md", "docs/MEDIA_LICENSE_POLICY.md", "docs/MASTER_AUDIT.md",
+                         "docs/ARCHITECTURE_AUDIT.md", "docs/PHASE5_SETUP.md", "docs/RECOVERY_GUIDE.md"],
                 "agents": [{"name": k, "purpose": v} for k, v in AGENT_DIRECTORY.items()]}
+
+    def sports(self) -> dict:
+        # Defensive: the Sports Data Hub serves stale data on provider failure, but never crash the page.
+        try:
+            from sports.espn_client import LEAGUES
+            hub = self.sports_hub
+            return {
+                "providers": hub.providers_status(),
+                "live_games": hub.live_games(),
+                "upcoming_games": hub.upcoming_games()[:12],
+                "latest_news": hub.latest_news(per_league=2)[:12],
+                "leagues": list(LEAGUES),
+            }
+        except Exception as exc:  # pragma: no cover - safety net
+            self.log.error("sports section failed: %s", type(exc).__name__)
+            return {"error": f"sports data unavailable ({type(exc).__name__})",
+                    "providers": {}, "live_games": [], "upcoming_games": [], "latest_news": []}
+
+    def skills(self) -> dict:
+        import json
+        from pathlib import Path
+        installed = []
+        try:
+            allow = json.loads(Path("config/openclaw_allowlist.json").read_text(encoding="utf-8"))
+            for name, spec in (allow.get("skills") or {}).items():
+                if spec.get("allowed"):
+                    installed.append({"skill": name, "version": "1.0", "status": "active",
+                                      "risk": spec.get("risk", "low"),
+                                      "capabilities": ", ".join(spec.get("capabilities", [])),
+                                      "agent": "OpenClaw registry"})
+        except Exception:
+            pass
+        # External skills requested in the master plan — honest "not installed yet" status.
+        pending = [
+            {"skill": "last30days-skill", "status": "not installed (pending review)",
+             "purpose": "Trend discovery (Reddit/X/YouTube/web)", "agent": "Research Agent"},
+            {"skill": "taste-skill", "status": "not installed (pending review)",
+             "purpose": "Improve dashboard/website quality (typography, spacing, motion)", "agent": "Dashboard/Frontend"},
+            {"skill": "open-notebook", "status": "not installed (pending review)",
+             "purpose": "Research memory / article & idea storage (Hermes-searchable)", "agent": "Hermes"},
+        ]
+        return {"installed": installed, "pending": pending,
+                "note": "Installed skills are draft-only OpenClaw skills (no secrets/shell/publish). "
+                        "External skills require license/safety review + owner approval before install."}
 
     def section(self, name: str) -> dict:
         fn = getattr(self, name, None)

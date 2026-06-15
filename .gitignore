@@ -42,6 +42,10 @@ tmp/
 memory/store/*
 !memory/store/.gitkeep
 
+# ── Sports data runtime (cache DB + health state) ──
+data/
+*.db
+
 # ── Owner-review queue (runtime data; drafts, not secrets) ──
 reports/review/*
 !reports/review/.gitkeep
