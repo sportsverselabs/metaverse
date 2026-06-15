@@ -61,6 +61,6 @@ fi
 
 # 6) Dashboard (optional, behind a reverse proxy + SSL — see docs/DEPLOYMENT_GUIDE.md)
 echo "To run the dashboard:  $PY -m dashboard --host 127.0.0.1 --port 8787"
-echo "Then put nginx + certbot in front for https on sportsversusnews.com."
+echo "Then put nginx + certbot in front for https on sportsversenews.com."
 
 echo "== Deploy steps complete. Send /status to your Telegram bot to confirm control. =="

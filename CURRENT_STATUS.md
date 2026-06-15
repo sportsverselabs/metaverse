@@ -21,8 +21,8 @@ The system is **deployed and operating in production** on the Hostinger VPS.
   locked to the owner's chat id. Token in VPS `.env`.
 - **Website/dashboard:** nginx reverse-proxy → `sportverse-dashboard` service (read-only dashboard on
   127.0.0.1:8787), HTTP-basic-auth protected, HTTPS via Let's Encrypt (auto-renew). Live at
-  **https://sportsversusnews.com**, `www`, and `dashboard.` subdomain. Config files in `deployment/`.
-- **Domain:** sportsversusnews.com (A records @/www/dashboard → VPS). SSL OK; HTTP→HTTPS redirect.
+  **https://sportsversenews.com**, `www`, and `dashboard.` subdomain. Config files in `deployment/`.
+- **Domain:** sportsversenews.com (A records @/www/dashboard → VPS). SSL OK; HTTP→HTTPS redirect.
 - **Secrets** (DeepSeek key, Telegram token, dashboard password) live ONLY in VPS `.env` / `/etc/nginx/.htpasswd`
   — never committed. To redeploy/update: `cd /root/metaverse && git pull && systemctl restart sportverse sportverse-dashboard`.
 

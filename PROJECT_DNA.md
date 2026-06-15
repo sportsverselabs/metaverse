@@ -23,7 +23,7 @@
 | Created | 2026-06-08 |
 | Last DNA update | 2026-06-08 |
 | Current phase | Phase 4 complete — Hermes Multi-Agent Operating Core (Jarvis + LangGraph + cost router + gates) |
-| Project name | **SportsVersusNews** (sportsversusnews.com) — see §1a business context |
+| Project name | **SportsVersusNews** (sportsversenews.com) — see §1a business context |
 | Tech stack | Python 3.9+ + `openai` SDK (DeepSeek live); LangGraph + Nemotron optional `[LOCKED]` |
 | LLM | **DeepSeek live and verified**; Nemotron optional (disabled); mock fallback intact |
 | Document owner | Project Owner (Kamal) |
@@ -50,7 +50,7 @@ system behind the Sportsverse brand(s).
 | Field | Value |
 |---|---|
 | Project name | **SportsVersusNews** |
-| Domain | sportsversusnews.com |
+| Domain | sportsversenews.com |
 | Main email | sportsverseceo@gmail.com |
 | Hosting | Hostinger |
 | VPS | Hostinger VPS |
@@ -374,7 +374,7 @@ owner-gated publishing step is a future phase requiring explicit per-item approv
 | 2026-06-09 | **LLM provider = DeepSeek** (OpenAI-compatible, `openai` SDK). **Live verified** (`is_mock=False`). | `[LOCKED]` |
 | 2026-06-09 | **Scheduling is not publishing** — a `confirmed` slot is a plan only; `published` stays False | `[LOCKED]` |
 | 2026-06-09 | Owner schedules via `python -m scheduler` (propose / confirm / cancel); default cadence 1/day @ 17:00 | `[LOCKED]` |
-| 2026-06-09 | Project operating name = **SportsVersusNews** (sportsversusnews.com, Hostinger VPS) | `[LOCKED]` |
+| 2026-06-09 | Project operating name = **SportsVersusNews** (sportsversenews.com, Hostinger VPS) | `[LOCKED]` |
 | 2026-06-09 | **Hermes is the Executive Officer / final router**; OpenClaw is a controlled skill adapter, never the orchestrator | `[LOCKED]` |
 | 2026-06-09 | Model routing: **DeepSeek default**, **Nemotron** only for complex work (optional, fallback DeepSeek) | `[LOCKED]` |
 | 2026-06-09 | LangGraph + Nemotron are **optional** (auto-detected); built-in fallback keeps it dependency-free | `[LOCKED]` |

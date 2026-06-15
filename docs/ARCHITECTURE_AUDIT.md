@@ -41,7 +41,7 @@ Date: 2026-06-10. Legend: ✅ built & working · 🟡 partial/placeholder · ❌
 | 6 | Real publishing (YT/TikTok/IG) | Actually post approved content | `publishing/` per-platform adapters | **Platform API creds/tokens** | Partial (needs creds) | Phase 5, owner-gated |
 | 7 | Analytics with real data | Learn what works | platform analytics APIs | Platform API creds | Partial | Phase 5 |
 | 8 | Learning center UI | Show owner-style learning | dashboard page over `analytics_agent.learn_preferences` | none | Yes | Build in dashboard |
-| 9 | Domain reconciliation | Live SSL is on `sportsversenews.com`; target is `sportsversusnews.com` | nginx/DNS/cert | **Owner: confirm domain + point DNS** | Yes (after DNS) | Owner points `sportsversusnews.com` → VPS; reissue SSL |
+| 9 | Domain | ✅ RESOLVED — owner confirmed **`sportsversenews.com`** (live, SSL active) | — | — | none |
 
 ## Summary
 **Live & working:** Hermes core, Jarvis (rule-based), DeepSeek, OpenClaw allowlist, approval queues,
