@@ -10,7 +10,7 @@ from dashboard.server import run_server
 
 def main() -> int:
     enable_utf8_console()
-    ap = argparse.ArgumentParser(prog="dashboard", description="SportVerse Labs owner dashboard (read-only).")
+    ap = argparse.ArgumentParser(prog="dashboard", description="Sportsverse owner dashboard (read-only).")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8787)
     args = ap.parse_args()

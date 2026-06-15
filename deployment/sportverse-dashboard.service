@@ -1,5 +1,5 @@
 [Unit]
-Description=SportVerse Labs - Owner Dashboard (read-only)
+Description=Sportsverse - Owner Dashboard (read-only)
 After=network-online.target
 Wants=network-online.target
 

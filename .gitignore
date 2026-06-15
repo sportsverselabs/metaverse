@@ -53,3 +53,6 @@ reports/schedule/*
 # ── Approval queue (runtime data) ──
 reports/approvals/*
 !reports/approvals/.gitkeep
+
+# ── Private handoff (contains VPS IP / ops details — keep out of the public repo) ──
+reports/handoff/CODEX_HANDOFF.md

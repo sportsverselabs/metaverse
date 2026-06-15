@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SportVerse Labs — guided VPS deployment (run this ON the Hostinger VPS).
+# Sportsverse — guided VPS deployment (run this ON the Hostinger VPS).
 # It is interactive and asks before doing anything irreversible. It never echoes secrets.
 set -euo pipefail
 
@@ -7,7 +7,7 @@ APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SERVICE_NAME="sportverse"
 PY="${PYTHON:-python3}"
 
-echo "== SportVerse Labs VPS deploy =="
+echo "== Sportsverse VPS deploy =="
 echo "App dir: $APP_DIR"
 
 confirm() { read -r -p "$1 [y/N] " a; [ "$a" = "y" ] || [ "$a" = "Y" ]; }
@@ -41,7 +41,7 @@ if confirm "Install a systemd service to run the Jarvis Telegram bot continuousl
   echo "Writing $UNIT (requires sudo)..."
   sudo tee "$UNIT" >/dev/null <<EOF
 [Unit]
-Description=SportVerse Labs - Jarvis Telegram bot
+Description=Sportsverse - Jarvis Telegram bot
 After=network-online.target
 
 [Service]
@@ -61,6 +61,6 @@ fi
 
 # 6) Dashboard (optional, behind a reverse proxy + SSL — see docs/DEPLOYMENT_GUIDE.md)
 echo "To run the dashboard:  $PY -m dashboard --host 127.0.0.1 --port 8787"
-echo "Then put nginx + certbot in front for https on sportsversenews.com."
+echo "Then put nginx + certbot in front for https on sportsversusnews.com."
 
 echo "== Deploy steps complete. Send /status to your Telegram bot to confirm control. =="

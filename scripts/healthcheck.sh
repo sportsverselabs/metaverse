@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SportVerse Labs — health check. Verifies the app imports, boots, and tests pass.
+# Sportsverse — health check. Verifies the app imports, boots, and tests pass.
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"

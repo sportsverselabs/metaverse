@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# SportVerse Labs — safe GitHub backup. Refuses to run if secrets would be committed.
+# Sportsverse — safe GitHub backup. Refuses to run if secrets would be committed.
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$APP_DIR"
 
-echo "== SportVerse Labs GitHub backup =="
+echo "== Sportsverse GitHub backup =="
 
 # 1) Safety: .gitignore must protect .env
 if ! grep -qxF ".env" .gitignore; then
@@ -31,7 +31,7 @@ git add -A
 if git diff --cached --quiet; then
   echo "Nothing to commit."
 else
-  git commit -m "Backup: SportVerse Labs system ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
+  git commit -m "Backup: Sportsverse system ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
 fi
 
 # 5) Remote + push

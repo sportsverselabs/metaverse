@@ -30,7 +30,7 @@ def render_html(data: dict) -> str:
     return f"""<!doctype html>
 <html lang=en><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width, initial-scale=1">
-<title>SportVerse Labs — Owner Dashboard</title>
+<title>Sportsverse — Owner Dashboard</title>
 <style>
  body{{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:0;background:#0f1419;color:#e6edf3}}
  header{{background:#161b22;padding:16px 24px;border-bottom:1px solid #30363d}}
@@ -44,7 +44,7 @@ def render_html(data: dict) -> str:
 </style></head>
 <body>
 <header>
- <h1>SportVerse Labs — Owner Dashboard</h1>
+ <h1>Sportsverse — Owner Dashboard</h1>
  <p class=muted>{_esc(data.get('business',''))} · status: <span class=pill>{_esc(data.get('system_status',''))}</span>
  · cost this month: <span class=pill>${_esc(data.get('cost',{}).get('month_total_usd',0))}</span>
  · generated {_esc(data.get('generated',''))}</p>
@@ -58,5 +58,5 @@ def render_html(data: dict) -> str:
  {_section('Content calendar (scheduled, not posted)', calendar)}
  {_section('Recent agent activity', activity)}
 </main>
-<footer>SportVerse Labs operating core · read-only view · data also at <code>/data</code> (JSON)</footer>
+<footer>Sportsverse operating core · read-only view · data also at <code>/data</code> (JSON)</footer>
 </body></html>"""

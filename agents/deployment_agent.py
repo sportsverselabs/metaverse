@@ -17,7 +17,7 @@ REQUIRED_CREDENTIALS = [
     ("TELEGRAM_BOT_TOKEN", "Telegram bot token from @BotFather"),
     ("TELEGRAM_CHAT_ID", "Your Telegram chat id (the bot will tell you, or use @userinfobot)"),
     ("GITHUB repo URL", "Where to back up the code (e.g. https://github.com/you/sportverse.git)"),
-    ("DNS access", "Hostinger domain/DNS panel access to point sportsversenews.com to the VPS"),
+    ("DNS access", "Hostinger domain/DNS panel access to point sportsversusnews.com to the VPS"),
 ]
 
 CHECKLIST = [
@@ -29,7 +29,7 @@ CHECKLIST = [
     "6. Run scripts/healthcheck.sh to verify the app imports and boots.",
     "7. Set up a process manager (systemd service) so it runs continuously.",
     "8. (Optional) reverse proxy (nginx) + SSL (certbot) for the dashboard/website.",
-    "9. Point sportsversenews.com DNS at the VPS IP (A records).",
+    "9. Point sportsversusnews.com DNS at the VPS IP (A records).",
     "10. Set the Telegram bot token; run the bot; send /status to confirm control.",
     "11. Owner confirms website + dashboard are live. Deployment complete.",
 ]

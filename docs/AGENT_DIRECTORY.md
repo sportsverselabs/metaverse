@@ -1,4 +1,4 @@
-# SportVerse Labs — Agent Directory
+# Sportsverse — Agent Directory
 
 Every agent and what it does. Hermes is the boss; nothing publishes/spends without owner approval.
 

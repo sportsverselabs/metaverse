@@ -39,7 +39,7 @@ class DashboardAgent:
 
         return {
             "generated": date.today().isoformat(),
-            "business": "SportVerse Labs / SportsVersusNews",
+            "business": "Sportsverse / SportsVersusNews",
             "system_status": "operational (local)",
             "cost": {"month_total_usd": round(self.cost_tracker.month_total(), 4)},
             "pending_approvals": {

@@ -1,11 +1,11 @@
-# SportVerse Labs — Account & Credential Inventory
+# Sportsverse — Account & Credential Inventory
 
 Everything the system needs, where it goes, and current status. **Secrets live only in `.env`
 (gitignored). Never commit or paste them into chat.**
 
 | # | Item | Where it goes | Needed for | Status |
 |---|---|---|---|---|
-| 1 | Business email `sportverselabs@gmail.com` | account / notifications | identity | ✅ provided |
+| 1 | Business email `sportsverseceo@gmail.com` | account / notifications | identity | ✅ provided |
 | 1b | YouTube channel `@PlatinumClips_SV` | publishing target (Phase 5) | brand | ✅ provided |
 | 2 | DeepSeek API key | `.env` `DEEPSEEK_API_KEY` | live AI (default) | ✅ set & verified |
 | 3 | Telegram bot token | `.env` `TELEGRAM_BOT_TOKEN` | Telegram control | ⏳ needed |

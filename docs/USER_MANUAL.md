@@ -1,4 +1,4 @@
-# SportVerse Labs — User Manual (Owner)
+# Sportsverse — User Manual (Owner)
 
 This is your day-to-day guide. Nothing publishes without your approval.
 

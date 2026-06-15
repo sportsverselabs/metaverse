@@ -1,4 +1,4 @@
-"""DNS / website agent — connects sportsversenews.com to the VPS. Guidance + verification only.
+"""DNS / website agent — connects sportsversusnews.com to the VPS. Guidance + verification only.
 
 Generates the exact DNS records to add in Hostinger, and can verify resolution/SSL once live.
 It makes no changes itself — the owner adds DNS records in the Hostinger panel.
@@ -11,7 +11,7 @@ from typing import Optional
 
 from core.logging_setup import get_logger
 
-DOMAIN = "sportsversenews.com"
+DOMAIN = "sportsversusnews.com"
 
 
 class DnsWebsiteAgent:

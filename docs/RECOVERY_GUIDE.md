@@ -1,4 +1,4 @@
-# SportVerse Labs — Recovery Guide
+# Sportsverse — Recovery Guide
 
 The whole project is one portable folder. Recovery = restore the folder + recreate `.env`.
 

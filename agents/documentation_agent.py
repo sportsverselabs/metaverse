@@ -30,7 +30,7 @@ AGENT_DIRECTORY = {
     "security_agent": "Watches logs/secrets/backups/uptime; alerts to Telegram.",
     "deployment_agent": "VPS deploy checklist + asks for the exact missing credential.",
     "github_backup_agent": "Safe code backup; protects secrets; produces push commands.",
-    "dns_website_agent": "DNS records to connect sportsversenews.com; verifies resolution/SSL.",
+    "dns_website_agent": "DNS records to connect sportsversusnews.com; verifies resolution/SSL.",
     "dashboard_agent": "Assembles the owner dashboard data (read-only).",
     "documentation_agent": "Maintains architecture/user-manual/deploy/recovery/account docs.",
     "openclaw_skill_agent": "Controlled skill adapter; allowlist only; never the orchestrator.",

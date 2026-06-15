@@ -97,4 +97,4 @@ def test_dashboard_render_and_assemble():
     for key in ("system_status", "pending_approvals", "content_calendar", "agent_activity", "owner_todo", "cost"):
         assert key in data
     html = render_html(data)
-    assert "SportVerse Labs" in html and "<html" in html.lower()
+    assert "Sportsverse" in html and "<html" in html.lower()

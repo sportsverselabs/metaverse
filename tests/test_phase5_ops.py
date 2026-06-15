@@ -34,7 +34,7 @@ def test_dns_records_and_instructions():
     d = DnsWebsiteAgent()
     recs = d.required_records("1.2.3.4")
     assert any(r["value"] == "1.2.3.4" for r in recs)
-    assert "sportsversenews.com" in d.instructions("1.2.3.4")
+    assert "sportsversusnews.com" in d.instructions("1.2.3.4")
 
 
 def test_social_prepares_but_never_posts(tmp_path):

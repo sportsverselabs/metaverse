@@ -34,7 +34,7 @@ def build_daily_report(*, dashboard=None, journal=None, analytics=None, security
 
     pend = dash["pending_approvals"]
     lines = [
-        f"DAILY REPORT — SportVerse Labs — {date.today().isoformat()}",
+        f"DAILY REPORT — Sportsverse — {date.today().isoformat()}",
         f"System: {dash['system_status']}",
         f"Tasks run today: {len(today)}",
         f"Pending approvals: {len(pend['content'])} content, {len(pend['actions'])} action(s)",
@@ -58,7 +58,7 @@ def build_weekly_report(*, dashboard=None, journal=None, analytics=None) -> str:
         by_route[r.get("selected_route", "?")] = by_route.get(r.get("selected_route", "?"), 0) + 1
 
     lines = [
-        f"WEEKLY REPORT — SportVerse Labs — week ending {date.today().isoformat()}",
+        f"WEEKLY REPORT — Sportsverse — week ending {date.today().isoformat()}",
         f"Tasks this week: {len(week)}",
         f"By agent: {by_route or '(none)'}",
         f"Best content: {perf.get('best')}",
