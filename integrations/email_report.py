@@ -1,23 +1,26 @@
-"""Email report sender (skeleton).
+"""Email report sender.
 
 Sends internal status/intelligence reports to the OWNER (not public posting), e.g. a
-daily affiliate-intelligence digest. Phase 1 status: SKELETON — it does NOT connect to
-an SMTP server; it builds the message and logs intent.
+daily affiliate-intelligence digest, over SMTP (Gmail by default).
 
 Notes:
 - Internal owner reports are not "public posting", so they don't need the publishing
-  approval gate — but they still ``dry_run`` until SMTP creds are configured.
+  approval gate — but they ``dry_run`` automatically until SMTP creds are configured.
 - Credentials come from ``.env`` (EMAIL_ADDRESS / EMAIL_APP_PASSWORD / SMTP_HOST / SMTP_PORT).
-  Never hard-code them and never log them.
+  SMTP_HOST defaults to smtp.gmail.com. Never hard-code creds and never log them.
 """
 
 from __future__ import annotations
 
+import smtplib
 from dataclasses import dataclass, field
 from email.mime.text import MIMEText  # stdlib
 from typing import Optional
 
 from core.logging_setup import get_logger
+
+DEFAULT_SMTP_HOST = "smtp.gmail.com"
+DEFAULT_SMTP_PORT = 587
 
 
 @dataclass
@@ -29,14 +32,14 @@ class EmailResult:
 
 
 class EmailReporter:
-    def __init__(self, config=None, logger=None, dry_run: bool = True) -> None:
+    def __init__(self, config=None, logger=None, dry_run: bool = False) -> None:
         self.config = config
         self.log = logger or get_logger("integration.email")
         self.dry_run = dry_run
         self._address = config.secret("EMAIL_ADDRESS") if config else None
         self._password = config.secret("EMAIL_APP_PASSWORD") if config else None
-        self._smtp_host = config.get("SMTP_HOST") if config else None
-        self._smtp_port = int(config.get("SMTP_PORT", 587)) if config else 587
+        self._smtp_host = (config.get("SMTP_HOST") if config else None) or DEFAULT_SMTP_HOST
+        self._smtp_port = int(config.get("SMTP_PORT", DEFAULT_SMTP_PORT)) if config else DEFAULT_SMTP_PORT
 
     @property
     def configured(self) -> bool:
@@ -59,15 +62,23 @@ class EmailReporter:
         if not recipient:
             return EmailResult(False, "no recipient and no EMAIL_ADDRESS configured", self.dry_run)
 
-        self.build_message(subject, body, recipient)  # validates inputs
+        msg = self.build_message(subject, body, recipient)  # validates inputs
 
         if self.dry_run or not self.configured:
             reason = "dry_run" if self.dry_run else "SMTP not fully configured"
             self.log.info("[dry] Would email report '%s' to %s (%s)", subject, recipient, reason)
             return EmailResult(False, f"not sent ({reason})", True, {"subject": subject, "to": recipient})
 
-        # TODO(later-phase): real send, e.g.:
-        #   import smtplib
-        #   with smtplib.SMTP(self._smtp_host, self._smtp_port) as s:
-        #       s.starttls(); s.login(self._address, self._password); s.send_message(msg)
-        return EmailResult(False, "real send not implemented (Phase 1 skeleton)", False)
+        try:
+            with smtplib.SMTP(self._smtp_host, self._smtp_port, timeout=30) as s:
+                s.ehlo()
+                s.starttls()
+                s.login(self._address, self._password)  # password never logged
+                s.send_message(msg)
+        except Exception as exc:  # surface the failure type without leaking creds
+            self.log.error("Email send failed to %s: %s", recipient, type(exc).__name__)
+            return EmailResult(False, f"send failed: {type(exc).__name__}: {exc}", False,
+                               {"subject": subject, "to": recipient})
+
+        self.log.info("Emailed report '%s' to %s", subject, recipient)
+        return EmailResult(True, "sent", False, {"subject": subject, "to": recipient})
