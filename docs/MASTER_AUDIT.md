@@ -82,9 +82,12 @@ Brand: **Sportsverse**. Owner: sportsverseceo@gmail.com.
 
 ## 6. Sports data readiness report
 
-- **0% built.** No ESPN, no API-Football, no hub, no cache/DB, no health monitor, no Sports Data page.
-- ESPN layer can be built **now** (keyless). API-Football needs the owner's key.
-- Recommended design (matches your spec): `ESPN + API-Football → Sports Data Hub → cache → SQLite → Hermes → Dashboard / Content / Video`. Agents call the **Hub only**, never the APIs directly.
+- ✅ **ESPN layer LIVE** (2026-06-15): `sports/` — ESPN client (keyless), SQLite cache + stale fallback,
+  health monitor with 3-failure Telegram alerts, `SportsDataHub` broker. Deployed; verified on the VPS
+  (12 ESPN calls, 0 failures, ~62ms). Dashboard **Sports Data** page live; ESPN + API-Football on Home.
+- ⏳ **API-Football** — client not built; needs `API_FOOTBALL_KEY` (owner).
+- Design as specified: `ESPN + API-Football → Sports Data Hub → SQLite cache → Hermes → Dashboard / Content / Video`.
+  Agents call the **Hub only**, never the APIs directly (enforced by design).
 
 ## 7. Security readiness report
 
@@ -125,10 +128,11 @@ Per new feature: `git pull` + restart service. Add SQLite path + sports env vars
 new dashboard sections. No new infra needed.
 
 ### 7. Estimated completion percentage
-**~60–65%** of this master vision. Core OS ≈ 95% done; sports-data layer ≈ 0%; dashboard ≈ 85%;
-publishing ≈ 15%; skills ≈ 0%.
+**~72%** of this master vision (up from ~60–65%). Core OS ≈ 95%; sports-data layer ≈ 50% (ESPN done,
+API-Football pending key); dashboard ≈ 95% (16/16 sections; Video/Analytics still placeholders);
+publishing ≈ 15%; external skills ≈ 0%.
 
 ### 8. Recommended next action
-Build the **Sports Data Hub + ESPN client + health monitor + Telegram alerts + dashboard Sports Data page**
-first (high value, **no credentials needed**). Wire **API-Football** the moment you hand over the key.
-Branding/domain corrections wait on owner decision #1 (to avoid breaking the live site).
+Provide the **API-Football API key** so I can build + wire that client into the Hub (the only missing
+sports provider). In parallel I can: (a) wire ESPN data into the Content/Research agents, or (b) start
+**YouTube** publishing (Phase 5). Domain confirmed as `sportsversenews.com` (no change needed).
