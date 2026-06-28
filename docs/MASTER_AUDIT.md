@@ -130,12 +130,12 @@ Per new feature: `git pull` + restart service. Add SQLite path + sports env vars
 new dashboard sections. No new infra needed.
 
 ### 7. Estimated completion percentage
-**~78%** of this master vision. Core OS ≈ 95%; sports-data layer ≈ 90% (ESPN + API-Football live;
-remaining: wire data into agents + IP allowlist); dashboard ≈ 95% (16/16 sections; Video/Analytics
-still placeholders); publishing ≈ 15%; external skills ≈ 0%.
+**~82%** of this master vision. Core OS ≈ 95%; sports-data layer ≈ 98% (ESPN + API-Football live AND
+wired into the agents — direct answers + drafting grounding; remaining: IP allowlist on a paid plan);
+dashboard ≈ 95% (16/16 sections; Video/Analytics still placeholders); publishing ≈ 15%; external skills ≈ 0%.
 
 ### 8. Recommended next action
-Sports data is fully connected (ESPN + API-Football live). Next high-value options:
-(a) **wire sports data into the Content/Research agents** so Hermes drafts from real scores/news,
-(b) start **YouTube** publishing (Phase 5), or (c) vet + install the external skills.
-Domain confirmed `sportsversenews.com`.
+Sports data is fully connected and agent-integrated (ask "what games are live?" → answered from the Hub
+with no LLM spend; drafts are grounded in real scores/news). Next high-value options:
+(a) start **YouTube** publishing (Phase 5), or (b) vet + install the external skills (last30days / taste /
+open-notebook). Domain confirmed `sportsversenews.com`.
