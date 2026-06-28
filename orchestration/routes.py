@@ -62,6 +62,13 @@ def node_jarvis_input(state, ctx: GraphContext):
     state.risk = parsed["risk"]
     state.gated_actions = parsed.get("gated_actions", [])
     state.requested_skill = parsed.get("requested_skill", "")
+    # Ground drafting requests with real-time sports data (best-effort; never breaks the flow).
+    sc = ctx.extras.get("sports_context") if ctx.extras else None
+    if sc is not None and not state.gated_actions:
+        try:
+            state.sports_brief = sc.brief(state.user_request)
+        except Exception:
+            state.sports_brief = ""
     return state
 
 

@@ -79,6 +79,60 @@ def test_hub_serves_stale_on_failure(tmp_path):
     assert res["ok"] and res["stale"] is True and "unavailable" in res["warning"]
 
 
+def _offline_hub(tmp_path, football=True):
+    return SportsDataHub(
+        cache=SportsCache(tmp_path / "c.db"),
+        espn=ESPNClient(fetch=lambda url: _SCOREBOARD),
+        football=APIFootballClient(api_key="x", fetch=lambda p, par: _AF_LIVE) if football else None,
+        health=SportsApiHealthMonitor(state_path=tmp_path / "h.json"),
+    )
+
+
+def test_context_query_detection_and_leagues():
+    from sports.context import SportsContext
+    assert SportsContext.is_data_query("what games are live?")
+    assert SportsContext.is_data_query("latest NBA news")
+    assert not SportsContext.is_data_query("draft 3 video ideas about the NBA finals")
+    assert set(SportsContext.detect_leagues("latest NBA and NFL news")) == {"NFL", "NBA"}
+    assert SportsContext.is_sports_related("write a caption for tonight's game")
+    assert not SportsContext.is_sports_related("write a poem about cats")
+
+
+def test_context_direct_answer(tmp_path):
+    from sports.context import SportsContext
+    sc = SportsContext(hub=_offline_hub(tmp_path))
+    ans = sc.direct_answer("what games are live?")
+    assert "Live" in ans and "Team A" in ans  # real game from the stub
+    news = sc.direct_answer("latest news")
+    assert "headlines" in news.lower()
+
+
+def test_context_brief_only_when_sports(tmp_path):
+    from sports.context import SportsContext
+    sc = SportsContext(hub=_offline_hub(tmp_path))
+    brief = sc.brief("draft a post about the NBA game tonight")
+    assert "REAL-TIME SPORTS DATA" in brief
+    assert sc.brief("write a poem about cats") == ""
+
+
+def test_orchestration_fast_path_answers_without_llm(tmp_path):
+    from types import SimpleNamespace
+    from orchestration.journal import AgentJournal
+    from orchestration.langgraph_app import _maybe_answer_sports
+    from orchestration.state import OrchestrationState
+    from sports.context import SportsContext
+    sc = SportsContext(hub=_offline_hub(tmp_path))
+    ctx = SimpleNamespace(extras={"sports_context": sc}, journal=AgentJournal(tmp_path / "j.jsonl"))
+    state = OrchestrationState(user_request="what games are live?")
+    out = _maybe_answer_sports(state, ctx)
+    assert out is not None
+    assert out.final_status == "answered_from_sports_hub"
+    assert out.model_provider == ""           # no LLM/spend
+    assert "sports_data_hub" in out.tools_used
+    # A drafting request must NOT be short-circuited.
+    assert _maybe_answer_sports(OrchestrationState(user_request="draft a video script about the NBA"), ctx) is None
+
+
 _AF_LIVE = {"errors": [], "response": [{
     "fixture": {"date": "2026-06-15T20:00Z", "status": {"long": "Second Half", "short": "2H", "elapsed": 67}},
     "league": {"name": "Premier League", "country": "England"},

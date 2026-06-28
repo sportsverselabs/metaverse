@@ -14,4 +14,8 @@ class ContentAgent(WorkerAgent):
     )
 
     def build_user_prompt(self, state) -> str:
-        return f"Content request: {state.user_request}\nReturn a clearly-labelled DRAFT for owner review."
+        brief = getattr(state, "sports_brief", "")
+        ctx = f"{brief}\n\n" if brief else ""
+        return (f"{ctx}Content request: {state.user_request}\n"
+                "Return a clearly-labelled DRAFT for owner review. Ground it in the real-time sports "
+                "data above where relevant; never invent scores, games, or quotes.")

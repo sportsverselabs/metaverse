@@ -56,7 +56,17 @@ def build_services(config=None, *, memory=None) -> GraphContext:
         journal=AgentJournal(),
         memory=memory,
         review_store=ReviewStore(),   # content drafts flow into `python -m review`
+        extras={"sports_context": _build_sports_context(config)},
     )
+
+
+def _build_sports_context(config):
+    """Best-effort SportsContext; None if the sports layer can't be built (flow still works)."""
+    try:
+        from sports.context import SportsContext
+        return SportsContext(config=config)
+    except Exception:
+        return None
 
 
 def langgraph_available() -> bool:
@@ -142,6 +152,11 @@ def run_task(user_request: str, source: str = "cli", ctx: Optional[GraphContext]
     ctx = ctx or build_services()
     state = OrchestrationState(user_request=user_request, source=source)
 
+    # Fast path: pure factual sports questions are answered straight from the Hub (no LLM, no spend).
+    answered = _maybe_answer_sports(state, ctx)
+    if answered is not None:
+        return answered
+
     if langgraph_available():
         app = build_langgraph_app(ctx)
         if app is not None:
@@ -152,6 +167,34 @@ def run_task(user_request: str, source: str = "cli", ctx: Optional[GraphContext]
             except Exception:
                 _log.warning("LangGraph invoke failed; using fallback runner.", exc_info=True)
     return run_fallback(state, ctx)
+
+
+def _maybe_answer_sports(state: OrchestrationState, ctx) -> Optional[OrchestrationState]:
+    """If the request is a pure live/scores/news question, answer from the Hub directly."""
+    sc = ctx.extras.get("sports_context") if getattr(ctx, "extras", None) else None
+    if sc is None:
+        return None
+    try:
+        if not sc.is_data_query(state.user_request):
+            return None
+        answer = sc.direct_answer(state.user_request)
+    except Exception:
+        return None
+    if not answer:
+        return None
+    state.visit("jarvis_input")
+    state.visit("sports_data_hub")
+    state.task_type = "sports"
+    state.route = "sports_data_hub"
+    state.tools_used.append("sports_data_hub")
+    state.output = answer
+    state.approval_status = "not_required"
+    state.final_status = "answered_from_sports_hub"
+    try:
+        ctx.journal.append(state.to_journal_record())
+    except Exception:
+        pass
+    return state
 
 
 def engine_name() -> str:

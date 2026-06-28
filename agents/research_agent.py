@@ -14,4 +14,8 @@ class ResearchAgent(WorkerAgent):
     )
 
     def build_user_prompt(self, state) -> str:
-        return f"Research request: {state.user_request}\nReturn a concise research brief (bullet points)."
+        brief = getattr(state, "sports_brief", "")
+        ctx = f"{brief}\n\n" if brief else ""
+        return (f"{ctx}Research request: {state.user_request}\n"
+                "Return a concise research brief (bullet points). Use the real-time sports data above "
+                "where relevant; do not invent scores or games.")

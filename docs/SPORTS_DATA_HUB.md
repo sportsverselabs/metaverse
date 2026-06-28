@@ -56,9 +56,21 @@ Time: <timestamp>
 The **Sports Data** section shows provider health (state, latency, failure counts), live games, upcoming
 games, and latest news, with a **Manual refresh** button. **Home** shows ESPN + API-Football status rows.
 
+## Agent integration (`sports/context.py`)
+`SportsContext` bridges the Hub into Jarvis/Hermes and the worker agents:
+- **Direct answers (no LLM, no spend):** factual questions like *"what games are live?"* or
+  *"latest NBA news"* are detected (`is_data_query`) and answered straight from the Hub. In the
+  orchestration this is a fast path in `run_task` → routes `jarvis_input -> sports_data_hub`.
+- **Grounding briefs:** for drafting requests (research/content) that mention sports, a compact
+  real-data block (live/upcoming/headlines) is injected into the agent prompt so drafts use real
+  scores instead of guessing. Wired in `node_jarvis_input` → `state.sports_brief`, consumed by
+  `ResearchAgent` / `ContentAgent`.
+Both are best-effort: if the Hub is unavailable the agents fall back to normal behavior.
+
 ## Tests
 `tests/test_sports.py` — fully offline (injected fetch, temp DB/state): cache TTL, ESPN normalization,
-Hub read-through, stale-fallback on failure, and the 3-failure alert + recovery.
+Hub read-through, stale-fallback on failure, 3-failure alert + recovery, API-Football normalization,
+context detection/answers, and the orchestration fast-path.
 
 ## Status
 - ✅ ESPN client, cache, health monitor, Hub, Telegram alerts, dashboard Sports Data page — built & tested.

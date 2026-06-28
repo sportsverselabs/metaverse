@@ -31,6 +31,7 @@ class OrchestrationState:
     gated_actions: list[str] = field(default_factory=list)
     requested_skill: str = ""
     task_meta: dict = field(default_factory=dict)
+    sports_brief: str = ""                   # real-time sports data injected into drafting prompts
 
     # Routing (set by Hermes)
     route: str = ""
