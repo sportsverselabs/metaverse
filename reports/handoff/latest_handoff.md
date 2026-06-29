@@ -6,6 +6,49 @@
 
 ---
 
+## Session: 2026-06-28 (audit) — Endpoint audit + Creative Studio plan (DOCS ONLY)
+
+**Agent:** Claude Code (Opus 4.8)
+**Goal:** Compare the build against the full Sportsverse OS endpoint vision; plan a dashboard-native
+creative (video + thumbnail) studio. **No major features built** (per instruction — audit/plan only).
+
+### What was produced
+- **`architecture/MASTER_ENDPOINT_RUBRIC.md`** — the 30-item endpoint vision with honest per-item status
+  (Built / Partial / Not built / Refactor / Blocked-owner / Blocked-external). ~55–60% of the vision built.
+- **`architecture/CREATIVE_STUDIO_PLAN.md`** — dashboard-native video/thumbnail editor design.
+  Open-source/local-first: **FFmpeg + MoviePy** render, **Pillow/SVG** thumbnails, browser clip-list
+  editor, captions via SRT+FFmpeg burn (Whisper optional later), Remotion/FFmpeg.wasm deferred to V2.
+  Provider interfaces: VideoEditorProvider / ThumbnailProvider / CaptionProvider. `VideoProject` JSON
+  model + edit history. V1a (local render) → V1b (Studio UI) → V1c (AI revision + compliance loop).
+- **`architecture/DEPARTMENT_SKILL_MAP.md`** — departments → Hermes roles → **reusable skill packs**
+  (not random GitHub skills); the existing 6 draft skills become the seed packs.
+- **`architecture/PLUGIN_PROVIDER_MAP.md`** — provider interfaces + cost order; LLM + Publishing exist
+  as the blueprint; video/thumbnail/caption/research providers are the new local-first additions.
+- **`architecture/BUILD_GAP_ANALYSIS.md`** — built / partial / missing / next / refactors / recommended
+  next phase (Phase 6 Creative Studio) + blockers.
+
+### Key findings
+- Solid: operating core, Sports Data Hub, review/gates, dashboard, deploy, publishing (code).
+- Biggest gap: **creative/video production surface** (video_agent is metadata-only; Video Review is a
+  placeholder). Several "departments" (Creative, Marketing, Community, Commerce, Tech Scout) and the
+  Knowledge Library are not built; skills aren't organized into packs.
+- **Architecture supports dashboard-native video editing additively (no rewrite)** — the only hard
+  external requirement is FFmpeg on the VPS (free).
+- DeepSeek stays the default LLM behind provider abstraction; no paid-tool lock-in.
+
+### Tests
+No code changed → suite unchanged at **134 passing** (verified at session start).
+
+### Recommended next phase
+**Phase 6 — Dashboard-native Creative Studio**, plan-first then build **V1a** (local FFmpeg/Pillow render
+foundation with offline tests). All safety rules carried forward (no auto-publish; edited content re-runs
+compliance; no unapproved skills; no secrets in logs; no paid lock-in; decisions logged).
+
+### Continuity files updated
+`PROJECT_DNA.md`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `README.md`, and this handoff.
+
+---
+
 ## Session: 2026-06-09 (i) — Phase 4 follow-ups: deeper Compliance + review wiring
 
 **Agent:** Claude Code (Opus 4.8)

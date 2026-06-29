@@ -2,19 +2,30 @@
 
 > Direct instructions for the **next coding agent**.
 > Read `PROJECT_DNA.md` and `CURRENT_STATUS.md` first, then do these in order.
-> Last updated: 2026-06-09
+> Last updated: 2026-06-28
 
 ---
 
-## Where we are
-Phases 0–4 are complete. Stack is **Python + `openai` SDK** (DeepSeek live).
-- `python -m pytest` → **79 tests** pass.
-- **Phase 4 Hermes Operating Core** runs: Jarvis → Hermes router → cost router → worker agent
-  (research/content/coding/nemotron/openclaw) → compliance → approval gate → execution → journal.
-- **DeepSeek default; Nemotron optional** (disabled → fallback to DeepSeek). LangGraph optional
-  (auto-detected; built-in runner otherwise). Both verified.
-- **Hermes is the final router/decision-maker.** No sub-agent publishes/spends/sends/installs/
-  changes production without a gated approval. `execution_agent` performs NO external action.
+## Where we are (2026-06-28)
+Phases 0–4 complete; Phase 5 (publishing) **code complete behind gates**; **deployed live** on the VPS.
+Stack is **Python + `openai` SDK** (DeepSeek live). `python -m pytest` → **134 tests** pass.
+- Hermes Operating Core: Jarvis → Hermes → cost router → worker → compliance → approval → execution → journal.
+- **Sports Data Hub live** (ESPN + API-Football, cache, health, Telegram alerts, agent grounding).
+- **Dashboard live** (16 sections, login + Telegram 2FA); **email reports live**; **publisher code** ready
+  (YouTube/IG/TikTok adapters behind approval — needs owner creds; not yet deployed/credentialed).
+- **DeepSeek default; Nemotron optional** (off → fallback). LangGraph optional. Hermes is final router;
+  nothing publishes/spends/installs without a gated approval; `execution_agent` takes no external action.
+
+## ▶ RECOMMENDED NEXT PHASE — Phase 6: Dashboard-native Creative Studio
+Per the 2026-06-28 endpoint audit (`architecture/BUILD_GAP_ANALYSIS.md`), the biggest gap is a
+**dashboard-native video + thumbnail editor** so the owner can preview/edit/approve draft videos in the
+dashboard (no CapCut/Canva/Synthesia for the basic flow). **Plan-first, then build V1a.**
+- Read first: `architecture/CREATIVE_STUDIO_PLAN.md`, `MASTER_ENDPOINT_RUBRIC.md`, `PLUGIN_PROVIDER_MAP.md`.
+- **V1a:** `VideoProject` model + `FfmpegVideoEditor` + `PillowThumbnailProvider` (local, offline tests, CLI render — no UI). Requires **FFmpeg on the VPS** (free apt install).
+- **V1b:** Creative Studio dashboard section (preview, clip list/trim/reorder, caption edit, thumbnail) via providers + background render + Telegram "draft ready" ping.
+- **V1c:** "Request AI revision" (DeepSeek) + compliance re-check per render + approve → review/scheduler.
+- Open-source/local first; everything behind provider interfaces; all safety rules LOCKED (no auto-publish,
+  edited content re-runs compliance, no unapproved skills, no secrets in logs, no paid lock-in, decisions logged).
 
 ## How to run
 ```bash

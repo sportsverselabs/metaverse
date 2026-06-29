@@ -21,12 +21,20 @@
 | Project name | Sportsverse OS |
 | Root folder | `sportsverse-os` |
 | Created | 2026-06-08 |
-| Last DNA update | 2026-06-08 |
-| Current phase | Phase 4 complete — Hermes Multi-Agent Operating Core (Jarvis + LangGraph + cost router + gates) |
-| Project name | **SportsVersusNews** (sportsversenews.com) — see §1a business context |
+| Last DNA update | 2026-06-28 |
+| Current phase | Phases 0–5 done/in-flight + **deployed live**. Next: **Phase 6 — Dashboard-native Creative Studio** (planned; see `architecture/CREATIVE_STUDIO_PLAN.md`) |
+| Brand / domain | **Sportsverse** / sportsversenews.com (legacy "SportsVersusNews" strings are cosmetic) |
 | Tech stack | Python 3.9+ + `openai` SDK (DeepSeek live); LangGraph + Nemotron optional `[LOCKED]` |
-| LLM | **DeepSeek live and verified**; Nemotron optional (disabled); mock fallback intact |
+| LLM | **DeepSeek live and verified** (foundational, low-cost); Nemotron optional (off); mock fallback intact |
+| Tests | `python -m pytest` → **134 passing** (2026-06-28) |
 | Document owner | Project Owner (Kamal) |
+
+> **2026-06-28 — Endpoint audit complete.** The full endpoint vision + honest per-item status now lives
+> in `architecture/MASTER_ENDPOINT_RUBRIC.md`. Companion docs: `CREATIVE_STUDIO_PLAN.md`,
+> `DEPARTMENT_SKILL_MAP.md`, `PLUGIN_PROVIDER_MAP.md`, `BUILD_GAP_ANALYSIS.md`. Headline: operating core,
+> sports data, review/gates, and deploy are solid (~55–60% of the endpoint vision); the **creative/video
+> production surface is the biggest gap** and is the recommended next phase. DeepSeek stays the default
+> LLM behind provider abstraction; open-source/local first; no paid-tool lock-in.
 
 ---
 

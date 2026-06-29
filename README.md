@@ -15,11 +15,13 @@ external drives, VPS servers, and different coding tools/agents without losing c
 
 ## Status
 
-- **Project:** SportsVersusNews (sportsversenews.com) — see `config/project_context.json`
-- **Phase:** 4 complete — Hermes Multi-Agent Operating Core (Jarvis + LangGraph + cost router + gates)
-- **Last updated:** 2026-06-09
-- **LLM:** **DeepSeek live and verified**; Nemotron optional (disabled); mock fallback intact.
-- **Code:** Python + `openai` SDK (LangGraph + Nemotron optional). `python -m pytest` → 79 passing.
+- **Project:** Sportsverse (sportsversenews.com) — see `config/project_context.json`
+- **Phase:** Phases 0–4 done; Phase 5 (publishing) code complete behind gates; **deployed live** on the VPS. Next: **Phase 6 — dashboard-native Creative Studio** (planned).
+- **Last updated:** 2026-06-28
+- **LLM:** **DeepSeek live and verified** (foundational, low-cost); Nemotron optional (off); mock fallback intact.
+- **Code:** Python + `openai` SDK (LangGraph + Nemotron optional). `python -m pytest` → **134 passing**.
+- **Live:** Sports Data Hub (ESPN + API-Football), dashboard (16 sections, login + Telegram 2FA), email reports, Telegram bot, SSL site — all on the Hostinger VPS.
+- **Endpoint vision & audit:** `architecture/MASTER_ENDPOINT_RUBRIC.md`, `BUILD_GAP_ANALYSIS.md`, `CREATIVE_STUDIO_PLAN.md`, `DEPARTMENT_SKILL_MAP.md`, `PLUGIN_PROVIDER_MAP.md`.
 - **Safety:** Hermes is the final router; nothing publishes/spends/sends/installs without a gated approval; `execution_agent` takes no external action.
 
 ### Run it

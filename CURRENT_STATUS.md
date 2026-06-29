@@ -29,7 +29,19 @@ The system is **deployed and operating in production** on the Hostinger VPS.
 ---
 
 ## Current Development Phase
-**Phase 5 - safe publishing slice in progress.** The real publisher service and platform adapters exist behind owner approval. Missing credentials still return "not configured"; no autonomous publishing was added.
+**Phase 5 (publishing) code complete behind gates; Phase 6 (Creative Studio) planned next.**
+The real publisher service + YouTube/IG/TikTok adapters exist behind owner approval (missing creds
+return "not configured"; no autonomous publishing). `python -m pytest` → **134 passing**.
+
+**2026-06-28 — Endpoint audit done (docs only, no features built).** Full endpoint vision + honest
+status: `architecture/MASTER_ENDPOINT_RUBRIC.md` (+ `BUILD_GAP_ANALYSIS.md`, `CREATIVE_STUDIO_PLAN.md`,
+`DEPARTMENT_SKILL_MAP.md`, `PLUGIN_PROVIDER_MAP.md`). ~55–60% of the endpoint vision built. Biggest gap =
+**dashboard-native Creative Studio (video + thumbnail editing)**; recommended as Phase 6 (plan-first,
+FFmpeg/MoviePy/Pillow — open-source, no paid lock-in, DeepSeek stays default).
+
+**Also live since the last DNA refresh:** Sports Data Hub (ESPN + API-Football, cache, health, Telegram
+alerts, agent-grounding), dashboard redesign (16 sections, login + Telegram 2FA), real Gmail email
+reports — all deployed.
 
 ## Current Working Module
 `publishing/` adapters/service, `agents/social_publishing_agent.py`, `dashboard/{data,server,app}.py`, and `review/models.py`.
