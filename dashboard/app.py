@@ -126,6 +126,14 @@ def shell_page(user: str) -> str:
         .then(function(r){{return r.json();}}).then(function(j){{alert(j.message||j.error||'done');go('approvals');}})
         .catch(function(){{alert('Action failed.');}});
     }};
+    window.dashPublish=function(id,platform,visibility){{
+      var label=platform+' ('+visibility+')';
+      if(!confirm('Are you sure you want to publish this item to '+label+'?')) return;
+      fetch('/dashboard/action',{{method:'POST',headers:{{'Content-Type':'application/json'}},
+        body:JSON.stringify({{id:id,action:'publish',platform:platform,visibility:visibility}})}})
+        .then(function(r){{return r.json();}}).then(function(j){{alert(j.message||j.error||'done');go('publishing');}})
+        .catch(function(){{alert('Publish action failed.');}});
+    }};
     go('home');
     </script>"""
     return _page("Sportsverse — Dashboard", body)
@@ -200,7 +208,18 @@ def _r_video(s):
 
 def _r_publishing(s):
     rows = "".join(f"<div class=st><span>{_esc(c['platform'])}</span><span>{_esc(c['status'])}</span></div>" for c in s["connections"])
-    return f"<h2>Publishing</h2><div class=note>{_esc(s['note'])}</div>{rows}"
+    def item_row(i):
+        iid = _esc(i["id"])
+        return (f"<div class=row><h4>{_esc(i['skill'])} - {iid}</h4>"
+                f"<div class=meta>{_esc(i['status'])}</div>"
+                f"<div style='margin-top:10px'>"
+                f"<button class=btnsm onclick=\"dashPublish('{iid}','youtube','private')\">YouTube private</button>"
+                f"<button class=btnsm onclick=\"dashPublish('{iid}','tiktok','draft')\">TikTok draft</button>"
+                f"<button class=btnsm onclick=\"dashPublish('{iid}','instagram','test')\">Instagram test</button>"
+                f"</div></div>")
+    items = "".join(item_row(i) for i in s.get("publishable", [])) or "<p class=muted>No approved or scheduled items ready to publish.</p>"
+    return (f"<h2>Publishing</h2><div class=note>{_esc(s['note'])}</div>{rows}"
+            f"<h3 style='margin:22px 0 10px'>Ready to publish</h3>{items}")
 
 
 def _r_analytics(s):

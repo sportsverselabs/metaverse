@@ -7,7 +7,7 @@ Routes:
   GET  /dashboard/logout     -> clear session
   GET  /dashboard/api?section=NAME -> session-gated HTML fragment
   POST /dashboard/ask        -> session-gated; runs a command through Hermes (DeepSeek)
-  POST /dashboard/action     -> session-gated; approve/reject/edit/schedule a review item
+  POST /dashboard/action     -> session-gated; approve/reject/edit/schedule/publish a review item
   GET  /health               -> ok
 
 Secrets, passwords, 2FA codes, and tokens are never logged.
@@ -161,7 +161,9 @@ def _handler_class():
             from memory.manager import MemoryManager
             from review.service import ReviewError, ReviewService
             from review.store import ReviewStore
-            svc = ReviewService(ReviewStore(), memory=MemoryManager())
+            store = ReviewStore()
+            memory = MemoryManager()
+            svc = ReviewService(store, memory=memory)
             iid = (body.get("id") or "").strip()
             action = (body.get("action") or "").strip()
             try:
@@ -173,10 +175,21 @@ def _handler_class():
                     svc.request_edit(iid, body.get("notes") or "please revise"); msg = "Revision requested."
                 elif action == "schedule":
                     svc.approve_for_scheduled_publish(iid); msg = "Approved for scheduling (NOT published)."
+                elif action == "publish":
+                    platform = (body.get("platform") or "").strip().lower()
+                    visibility = (body.get("visibility") or "private").strip().lower()
+                    from publishing.service import PublishingService
+                    result = PublishingService(config=load_config(), review_store=store,
+                                               memory=memory).publish_review_item(
+                                                   iid, platform=platform, visibility=visibility)
+                    if not result.ok:
+                        return self._send(200, "application/json", json.dumps({"error": result.reason}))
+                    target = result.url or result.post_id or platform
+                    msg = f"Published to {platform}: {target}"
                 else:
                     return self._send(200, "application/json", json.dumps({"error": "unknown action"}))
                 return self._send(200, "application/json", json.dumps({"message": msg}))
-            except ReviewError as exc:
+            except (ReviewError, ValueError) as exc:
                 return self._send(200, "application/json", json.dumps({"error": str(exc)}))
 
     return Handler

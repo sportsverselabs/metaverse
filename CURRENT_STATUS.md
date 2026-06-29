@@ -5,8 +5,8 @@
 
 | Field | Value |
 |---|---|
-| Last updated | 2026-06-10 |
-| Updated by | Coding Agent (Claude Code / Opus 4.8) |
+| Last updated | 2026-06-28 |
+| Updated by | Coding Agent (Codex) |
 
 ---
 
@@ -29,12 +29,10 @@ The system is **deployed and operating in production** on the Hostinger VPS.
 ---
 
 ## Current Development Phase
-**Phase 4 — COMPLETE (+ follow-ups).** Hermes Multi-Agent Operating Core, plus: deepened
-Compliance (real per-dimension checks) and orchestration→review-queue wiring. Phases 0–3 preserved.
+**Phase 5 - safe publishing slice in progress.** The real publisher service and platform adapters exist behind owner approval. Missing credentials still return "not configured"; no autonomous publishing was added.
 
 ## Current Working Module
-`agents/compliance.py` (deepened checks), `orchestration/routes.py` (content drafts → review
-surface), `core/console.py` (UTF-8 console for all CLIs).
+`publishing/` adapters/service, `agents/social_publishing_agent.py`, `dashboard/{data,server,app}.py`, and `review/models.py`.
 
 ## Completed Files (Phase 4, 2026-06-09)
 **Providers:** `providers/{__init__,deepseek_provider,nemotron_provider,model_router}.py`
@@ -46,6 +44,11 @@ surface), `core/console.py` (UTF-8 console for all CLIs).
 **Other:** `scripts/smoke_phase4.py`, `logs/agent_journal.jsonl`, `reports/approvals/.gitkeep`
 **Edited:** `core/paths.py`, `main.py` is unchanged for Phase 1-3, `.env`/`.env.example` (NEMOTRON_*), `.gitignore`, `requirements.txt`, docs.
 
+## Completed Files (Phase 5, 2026-06-28)
+**Publishing:** `publishing/{__init__,base,http,youtube,instagram,tiktok,service}.py`
+**Dashboard/review wiring:** `dashboard/{data,server,app}.py`, `agents/social_publishing_agent.py`, `review/models.py`, `.gitignore`, `reports/posts/.gitkeep`
+**Tests:** `tests/test_publishing.py` plus existing dashboard/review safety suites.
+
 ## Broken Files
 None.
 
@@ -56,22 +59,14 @@ None. (Fixed a Windows-console UTF-8 print issue in the Jarvis CLI.)
 None.
 
 ## API Keys Needed
-DeepSeek key in place + verified. Nemotron is OPTIONAL (disabled). LangGraph is OPTIONAL.
+YouTube OAuth (`YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN`), Instagram Graph (`IG_ACCESS_TOKEN`, `IG_BUSINESS_ID`), and TikTok (`TIKTOK_ACCESS_TOKEN`) are still needed for live platform posting. DeepSeek, Telegram, email, and sports keys are already handled on the VPS.
 
 ## Owner Actions Needed
-None required. Optional:
-- Try the core: `python -m orchestration "research trending football stories"`.
-- Review gated approvals: `python -m approval list`.
-- (Optional) `pip install langgraph` for the real engine; set `NEMOTRON_*` to enable Nemotron.
+Provide the YouTube OAuth credentials first if YouTube private uploads should go live. Keep Instagram public publishing disabled until the owner has a test-account/app-review path and explicitly enables `IG_ALLOW_PUBLIC_PUBLISH=true`.
 
 ## Last Successful Test
-`2026-06-09` — `python -m pytest` → **85 passed** (exit 0).
-`python scripts/smoke_phase4.py` → routing + DeepSeek/Nemotron-fallback + compliance + gated
-approvals + OpenClaw allowlist block + journaling; `any_published=False`.
-**Live**: `python -m orchestration "draft a hype caption ..."` → DeepSeek → compliance →
-**queued into the review surface** (`rv-...`), shown by `python -m review list`. All CLIs UTF-8-safe.
+`2026-06-28` - `python -m pytest` -> **131 passed** (exit 0).
+Targeted Phase 5 check: `python -m pytest tests/test_publishing.py tests/test_phase5_ops.py tests/test_dashboard_ui.py tests/test_review.py tests/test_gates.py tests/test_phase5_agents.py` -> **39 passed**.
 
 ## Next Coding Task
-See `NEXT_STEPS.md`: optionally enable LangGraph/Nemotron; expand which routes feed the review
-queue; build per-platform compliance refinements. Phase 5 (real publisher) stays LOCKED until
-the owner explicitly asks.
+Add real owner credentials to `.env`, perform the one-time YouTube OAuth refresh-token flow, then run the first dashboard-triggered YouTube upload in private mode.

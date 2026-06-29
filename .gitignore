@@ -58,5 +58,9 @@ reports/schedule/*
 reports/approvals/*
 !reports/approvals/.gitkeep
 
+
+# Phase 5 publish logs (runtime data; post ids/urls, not source)
+reports/posts/*
+!reports/posts/.gitkeep
 # ── Private handoff (contains VPS IP / ops details — keep out of the public repo) ──
 reports/handoff/CODEX_HANDOFF.md

@@ -20,8 +20,9 @@ PLATFORMS = ("youtube", "instagram", "tiktok", "website", "email")
 class SocialPublishingAgent:
     name = "social_publishing_agent"
 
-    def __init__(self, logger=None, posts_log=None) -> None:
+    def __init__(self, logger=None, posts_log=None, publishing_service=None) -> None:
         self.log = logger or get_logger("agent.social_publishing")
+        self.publishing_service = publishing_service
         self.posts_log = posts_log or (paths.REPORTS_DIR / "posts" / "posts_log.jsonl")
         self.posts_log.parent.mkdir(parents=True, exist_ok=True)
 
@@ -40,7 +41,8 @@ class SocialPublishingAgent:
         self.log.info("Prepared post for %s (not posted).", platform)
         return post
 
-    def publish(self, post: dict, *, approved: bool = False, live_capability: bool = False) -> dict:
+    def publish(self, post: dict, *, approved: bool = False, live_capability: bool = False,
+                visibility: str = "private") -> dict:
         """Refuses to post unless explicitly approved AND a live capability exists (Phase 5)."""
         if not approved:
             self._log(post, "blocked_no_approval")
@@ -49,8 +51,15 @@ class SocialPublishingAgent:
             self._log(post, "blocked_no_capability")
             return {"status": "not_published",
                     "reason": "live publishing is Phase 5 (owner-gated); no platform API is connected yet"}
-        # Phase 5 would dispatch to the platform API here, per-item, after final confirmation.
-        return {"status": "not_published", "reason": "publishing executor not implemented (Phase 5)"}
+        service = self.publishing_service
+        if service is None:
+            from publishing.service import PublishingService
+            service = PublishingService(posts_log=self.posts_log.parent / "publish_log.jsonl")
+        result = service.publish(post, platform=post.get("platform", ""), approved=True, visibility=visibility)
+        self._log(post, "published" if result.ok else "publish_failed")
+        data = result.to_dict()
+        data["status"] = "published" if result.ok else "not_published"
+        return data
 
     def _log(self, post: dict, action: str) -> None:
         rec = {"ts": datetime.now().isoformat(timespec="seconds"), "action": action,

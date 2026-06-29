@@ -23,7 +23,7 @@ STATUS_REVISION = "owner_revision_requested"             # owner asked for chang
 STATUS_REJECTED = "owner_rejected"                       # owner rejected; archived w/ reason
 STATUS_OWNER_APPROVED = "owner_approved"                 # owner approved the DRAFT only
 STATUS_SCHEDULED = "approved_for_scheduled_publish"      # cleared for a FUTURE scheduler
-STATUS_PUBLISHED = "published_later_phase_only"          # NEVER set in this phase
+STATUS_PUBLISHED = "published"                           # set only by explicit Phase 5 publisher
 
 ALL_STATUSES = frozenset({
     STATUS_DRAFT_CREATED, STATUS_COMPLIANCE_REVIEWED, STATUS_READY, STATUS_REVISION,
@@ -82,7 +82,11 @@ class ReviewItem:
     created: str = ""
     updated: str = ""
     source_text: str = ""          # original NL request, used to build revision tasks
-    published: bool = False        # INVARIANT: never True in this phase
+    published: bool = False        # True only after explicit Phase 5 publisher success
+    published_at: str = ""
+    published_platform: str = ""
+    post_id: str = ""
+    post_url: str = ""
     history: list[dict] = field(default_factory=list)
 
     def add_history(self, action: str, *, by: str = "owner", notes: str = "") -> None:
@@ -97,6 +101,10 @@ class ReviewItem:
         # Tolerate older records missing the gates field.
         data = dict(data)
         data.setdefault("gates", _default_gates())
+        data.setdefault("published_at", "")
+        data.setdefault("published_platform", "")
+        data.setdefault("post_id", "")
+        data.setdefault("post_url", "")
         return cls(**data)
 
 

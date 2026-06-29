@@ -108,8 +108,7 @@ OpenClaw registry, approval+review+scheduler, Telegram bot+2FA, **deployed dashb
 **live email**, GitHub backup, security agent, public website, full VPS deploy with SSL.
 
 ### 2. What is partially complete
-Dashboard (14/16 sections; Video Review + Analytics are honest placeholders). Publishing (gated, but no
-live platform posting). Alerting (bot exists; failure-triggered alerts not wired).
+Dashboard (16/16 sections; Video Review + Analytics are honest placeholders). Publishing is now an explicit, owner-gated Phase 5 action with adapters wired, but live platform credentials are still pending. Alerting exists for publish success/failure through the publishing service.
 
 ### 3. What is missing
 Entire Sports Data Hub + ESPN + API-Football + cache/DB + health monitor + Telegram failure alerts;

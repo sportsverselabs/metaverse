@@ -42,6 +42,7 @@ class DashboardData:
         self.cost = CostTracker()
         self.journal = AgentJournal()
         self._sports_hub = None
+        self._publishing_service = None
 
     @property
     def sports_hub(self):
@@ -50,6 +51,15 @@ class DashboardData:
             from sports.hub import SportsDataHub
             self._sports_hub = SportsDataHub(config=self.config)
         return self._sports_hub
+
+    @property
+    def publishing_service(self):
+        # Built lazily: avoids platform adapter setup unless the Publishing page is opened.
+        if self._publishing_service is None:
+            from publishing.service import PublishingService
+            self._publishing_service = PublishingService(config=self.config)
+        return self._publishing_service
+
 
     # ---- helpers ----------------------------------------------------- #
     def _today_rows(self):
@@ -110,7 +120,7 @@ class DashboardData:
         return {"content": d["pending_approvals"]["content"], "actions": d["pending_approvals"]["actions"]}
 
     def pipeline(self) -> dict:
-        from review.models import (STATUS_OWNER_APPROVED, STATUS_READY, STATUS_REJECTED,
+        from review.models import (STATUS_OWNER_APPROVED, STATUS_PUBLISHED, STATUS_READY, STATUS_REJECTED,
                                     STATUS_REVISION, STATUS_SCHEDULED)
         rs = self.dash.review_store
         sched = self.dash.scheduler_store
@@ -121,7 +131,7 @@ class DashboardData:
             {"stage": "Owner approved", "count": len(rs.list(status=STATUS_OWNER_APPROVED))},
             {"stage": "Scheduled", "count": len(rs.list(status=STATUS_SCHEDULED))},
             {"stage": "Rejected", "count": len(rs.list(status=STATUS_REJECTED, include_archived=True))},
-            {"stage": "Published", "count": 0, "note": "publishing is Phase 5 (owner-gated)"},
+            {"stage": "Published", "count": len(rs.list(status=STATUS_PUBLISHED)), "note": "explicit publisher only"},
         ]}
 
     def video(self) -> dict:
@@ -133,14 +143,22 @@ class DashboardData:
 
     def publishing(self) -> dict:
         c = self.config
+        social = {row["platform"]: row for row in self.publishing_service.connection_statuses()}
+        email = bool(c.secret("EMAIL_APP_PASSWORD") and c.get("EMAIL_ADDRESS"))
+        from review.models import STATUS_OWNER_APPROVED, STATUS_SCHEDULED
+        rs = self.dash.review_store
+        publishable = rs.list(status=STATUS_OWNER_APPROVED) + rs.list(status=STATUS_SCHEDULED)
         return {"connections": [
             {"platform": "Website", "status": "connected (sportsversenews.com)"},
             {"platform": "Telegram bot", "status": "connected" if c.secret("TELEGRAM_BOT_TOKEN") else "needs owner setup"},
-            {"platform": "Email (Gmail)", "status": "needs owner setup (Gmail App Password)"},
-            {"platform": "YouTube", "status": "needs owner setup (API credentials)"},
-            {"platform": "TikTok", "status": "needs owner setup (account/API)"},
-            {"platform": "Instagram", "status": "needs owner setup (account/API)"},
-        ], "note": "No live posting exists yet (Phase 5). Connections marked 'needs owner setup' require credentials."}
+            {"platform": "Email (Gmail)", "status": "connected" if email else "needs owner setup (Gmail App Password)"},
+            {"platform": "YouTube", "status": social["youtube"]["status"]},
+            {"platform": "TikTok", "status": social["tiktok"]["status"]},
+            {"platform": "Instagram", "status": social["instagram"]["status"]},
+        ], "publishable": [
+            {"id": i.id, "skill": i.skill, "status": i.status}
+            for i in publishable
+        ], "note": "Publishing is live-gated. Only owner-approved/scheduled items can be posted, private/draft first where supported."}
 
     def analytics(self) -> dict:
         s = self._analytics.summarize()
