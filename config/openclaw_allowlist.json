@@ -12,7 +12,14 @@
     "script_outline_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"] },
     "affiliate_product_research_draft": { "allowed": true, "risk": "medium", "capabilities": ["create_draft"] },
     "compliance_review_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"] },
-    "daily_report_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"] }
+    "daily_report_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"] },
+    "thumbnail_concept_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"], "department": "creative" },
+    "title_card_copy_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"], "department": "creative" },
+    "seo_hashtag_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"], "department": "marketing" },
+    "posting_time_strategy_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"], "department": "marketing" },
+    "template_reply_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"], "department": "community" },
+    "merch_idea_draft": { "allowed": true, "risk": "medium", "capabilities": ["create_draft"], "department": "commerce" },
+    "tool_evaluation_draft": { "allowed": true, "risk": "low", "capabilities": ["create_draft"], "department": "tech_scout" }
   },
   "forbidden_capabilities": [
     "secrets", "api_keys", "shell", "production_database", "payments",

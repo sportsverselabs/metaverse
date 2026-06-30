@@ -112,7 +112,15 @@ lock-in (everything behind providers).
   render** (+ on demand; stored on the project), and **Submit for review** (gated on a render existing AND
   compliance passed → creates a `ReviewItem` in the owner Approvals queue, entering the existing
   review/scheduler/gated-publisher pipeline). Verified live on the VPS with real DeepSeek. Nothing publishes.
-- **V2 (optional):** FFmpeg.wasm client scrubbing, Whisper auto-captions, Remotion motion templates — each behind its provider, owner-gated for any cost.
+- **V2 (optional):**
+  - ✅ **Whisper auto-captions BUILT (2026-06-30)** — `creative/providers/whisper_captions.py`
+    (`WhisperCaptionProvider`, local `faster-whisper`, optional dep, injected/guarded for tests) +
+    studio `auto_caption` action + per-clip "Auto-caption (Whisper)" button. Reports "not installed"
+    cleanly if `faster-whisper` isn't present.
+  - ⏸️ **FFmpeg.wasm** (client-side scrubbing) and **Remotion** (React/Node motion templates) — **deferred**:
+    both add heavy toolchains (a large WASM bundle / a full Node build) that cut against the
+    "open-source/local, no heavy deps" rule for limited near-term value. Kept as future providers behind
+    `VideoEditorProvider`; revisit only if motion graphics / in-browser cutting become priorities.
 
 ## 10. Does the current architecture support this? (answer)
 **Yes, with additive work — no rewrite.** The dashboard (server-rendered sections + session-gated

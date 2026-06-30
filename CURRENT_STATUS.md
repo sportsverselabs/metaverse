@@ -54,6 +54,15 @@ approval + the separate gated publisher. `python -m pytest` → **159 passing**.
 Next options: V2 creative (Whisper auto-captions, FFmpeg.wasm scrubbing, Remotion templates) or build out
 remaining departments (Creative/Marketing/Community/Commerce/Tech-Scout, Knowledge Library, skill packs).
 
+**2026-06-30 (later) — breadth + V2 captions + YouTube bridge.** Built: (1) **Knowledge Library**
+(`knowledge_library/`: file-based store + keyword search + CLI), (2) **department skill packs**
+(`skills/packs.py`: 7 new draft-only skills, allowlisted; `DEPARTMENT_PACKS` map) + 5 new departments +
+Knowledge Library in `AGENT_DIRECTORY`, (3) **Whisper auto-captions** (`creative/providers/whisper_captions.py`
++ studio `auto_caption`), (4) **Studio→YouTube bridge** (`PublishingService._post_from_item` attaches the
+rendered video + title to a `video_project` review item). **FFmpeg.wasm + Remotion deferred** (heavy deps).
+`python -m pytest` → **168 passing**. **YouTube upload itself is still BLOCKED on owner credentials**
+(OAuth `client_secret.json` + refresh token — see docs/PHASE5_SETUP.md §2); the path is wired and ready.
+
 ## Current Working Module
 `publishing/` adapters/service, `agents/social_publishing_agent.py`, `dashboard/{data,server,app}.py`, and `review/models.py`.
 

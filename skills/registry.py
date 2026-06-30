@@ -45,10 +45,11 @@ class SkillRegistry:
 
 
 def default_registry() -> SkillRegistry:
-    """Registry preloaded with the initial safe, draft-only skills."""
+    """Registry preloaded with the initial draft-only skills + the department skill packs."""
     from skills.drafts import ALL_DRAFT_SKILLS
+    from skills.packs import ALL_PACK_SKILLS
 
     reg = SkillRegistry()
-    for skill_cls in ALL_DRAFT_SKILLS:
+    for skill_cls in [*ALL_DRAFT_SKILLS, *ALL_PACK_SKILLS]:
         reg.register(skill_cls())
     return reg

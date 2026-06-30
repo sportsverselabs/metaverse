@@ -17,9 +17,17 @@ EXPECTED_SKILLS = {
 }
 
 
-def test_default_registry_has_all_six_skills():
+def test_default_registry_has_the_core_six_skills():
+    # The original six are always present; department packs add more on top (see skills/packs.py).
     reg = default_registry()
-    assert set(reg.names()) == EXPECTED_SKILLS
+    assert EXPECTED_SKILLS.issubset(set(reg.names()))
+
+
+def test_department_pack_skills_registered():
+    from skills.packs import ALL_PACK_SKILLS
+    names = set(default_registry().names())
+    assert {c.spec.name for c in ALL_PACK_SKILLS}.issubset(names)
+    assert len(names) >= len(EXPECTED_SKILLS) + len(ALL_PACK_SKILLS)
 
 
 def test_every_skill_is_draft_only_and_cannot_publish():

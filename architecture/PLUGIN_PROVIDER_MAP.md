@@ -11,9 +11,9 @@
 | **LLMProvider** | text: drafts, hooks, titles, descriptions, revision, reasoning | **Built** | `providers/deepseek_provider.py` (default) via `providers/model_router.py`; `core/providers/{mock,openai,anthropic}` | NVIDIA/Nemotron (`providers/nemotron_provider.py`, optional/off), OpenAI, Claude |
 | **PublishingProvider** | push approved content to a platform (gated) | **Built** | `publishing/{youtube,instagram,tiktok}.py` + `publishing/base.py` + `service.py` | more platforms behind gates |
 | **ResearchProvider** | trends/web/Reddit/X/YouTube research | **Not built** | `last30days`-style skill + free sources; sports already via Hub | paid research APIs (gated) |
-| **VideoEditorProvider** | assemble/trim/reorder/render/probe video | **Not built** | `FfmpegVideoEditor` (+ optional `MoviePyVideoEditor`) | Remotion renderer, FFmpeg.wasm (client) |
-| **ThumbnailProvider** | generate/compose thumbnails | **Not built** | `PillowThumbnailProvider` (+ SVG templates) | AI image gen / Canva behind a provider (gated) |
-| **CaptionProvider** | transcribe/edit/burn captions | **Not built** | `SrtCaptionProvider` (text + FFmpeg burn) | `WhisperCaptionProvider` (local Whisper.cpp) |
+| **VideoEditorProvider** | assemble/trim/reorder/render/probe video | **Built** | `FfmpegVideoEditor` (live on VPS) | Remotion renderer, FFmpeg.wasm (client) — deferred |
+| **ThumbnailProvider** | generate/compose thumbnails | **Built** | `PillowThumbnailProvider` (live on VPS) | AI image gen / Canva behind a provider (gated) |
+| **CaptionProvider** | transcribe/edit/burn captions | **Built** | `SrtCaptionProvider` (text + FFmpeg burn) + `WhisperCaptionProvider` (local `faster-whisper`, optional) | hosted ASR (gated) |
 | **DataProvider (sports)** | scores/news/standings | **Built** | `sports/` ESPN + API-Football via `SportsDataHub` | more leagues/providers |
 | **NotifyProvider** | owner alerts | **Built** | `integrations/telegram_bot.py`, `integrations/email_report.py` | — |
 | **StorageProvider** | memory/knowledge persistence | **Partial** | `memory/manager.py` (file), `orchestration/journal.py` | searchable knowledge library |

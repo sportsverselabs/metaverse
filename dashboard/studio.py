@@ -125,7 +125,8 @@ def editor_html(project_id: str) -> str:
             f"<button class=btnsm onclick=\"studioTrim('{_esc(c.id)}')\">Set trim</button></div>"
             f"<div style='margin-top:8px'>caption "
             f"<input id='cap_{_esc(c.id)}' value='{_esc(cap_text)}' size=40> "
-            f"<button class=btnsm onclick=\"studioCaption('{_esc(c.id)}')\">Save caption</button></div>"
+            f"<button class=btnsm onclick=\"studioCaption('{_esc(c.id)}')\">Save caption</button> "
+            f"<button class=btnsm onclick=\"studioAction('auto_caption',{{clip:'{_esc(c.id)}'}})\">Auto-caption (Whisper)</button></div>"
             f"</div>")
     clips_html = "".join(clip_rows) or "<p class=muted>No clips. Add media files under the project's folder, then re-open.</p>"
 
@@ -288,6 +289,22 @@ def studio_action(body: dict, *, actor: str = "owner") -> dict:
         p.add_edit(actor, "generated thumbnail", after=res.output_path)
         store.save(p)
         return {"message": "Thumbnail generated.", "project": pid}
+
+    if action == "auto_caption":
+        from creative.providers.whisper_captions import WhisperCaptionProvider
+        c = next((c for c in p.clips if c.id == body.get("clip")), None)
+        if not c:
+            return {"error": "clip not found"}
+        prov = WhisperCaptionProvider()
+        if not prov.configured:
+            return {"error": "Whisper not installed on the server (pip install faster-whisper)."}
+        cues = prov.transcribe(c.src)
+        if not cues:
+            return {"error": "No speech detected or transcription unavailable."}
+        c.captions = cues
+        p.add_edit("ai", f"auto-captioned clip ({len(cues)} segments)")
+        store.save(p)
+        return {"message": f"Auto-captioned {len(cues)} segment(s).", "project": pid}
 
     if action == "compliance":
         comp = _run_compliance(p)

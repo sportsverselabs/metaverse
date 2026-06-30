@@ -38,6 +38,12 @@ AGENT_DIRECTORY = {
     "compliance": "Reviews content across policy/copyright/fair-use/FTC/brand-safety/platform; never auto-approves.",
     "sentinel": "Integrity/security/drift monitor for skills.",
     "archivist": "Institutional memory + handoff keeper.",
+    "creative_department": "Thumbnails, title cards, lower-thirds, brand styling (creative skill pack; draft only).",
+    "marketing_department": "SEO, hashtags, posting-time strategy, growth ideas (marketing skill pack; advisory only).",
+    "community_department": "Template-only comment/DM reply drafts; never sends (community skill pack).",
+    "commerce_department": "Affiliate + merch concept research; never lists/sells (commerce skill pack).",
+    "technology_scout": "Evaluates new tools/skills/providers; recommends only, never installs (Sentinel-audited).",
+    "knowledge_library": "Research/idea/source memory; departments write to it and Hermes searches it.",
 }
 
 

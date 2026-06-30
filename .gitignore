@@ -49,6 +49,9 @@ data/
 # ── Creative Studio runtime (video projects, renders, assets) ──
 reports/video/
 
+# ── Knowledge Library runtime store ──
+knowledge_library/store/
+
 # ── Owner-review queue (runtime data; drafts, not secrets) ──
 reports/review/*
 !reports/review/.gitkeep

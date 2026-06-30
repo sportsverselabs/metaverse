@@ -124,13 +124,34 @@ class PublishingService:
     @staticmethod
     def _post_from_item(item: ReviewItem, platform: str) -> dict:
         title = item.skill.replace("_", " ").strip().title() or "Sportsverse post"
-        return {
+        post = {
             "review_id": item.id,
             "platform": platform,
             "title": title,
             "body": item.content,
             "hashtags": [],
         }
+        if item.skill == "video_project":
+            # Bridge from the Creative Studio: attach the rendered video + real title/description so a
+            # video adapter (e.g. YouTube) can upload it. Best-effort; never raises.
+            PublishingService._enrich_video_post(item, post)
+        return post
+
+    @staticmethod
+    def _enrich_video_post(item: ReviewItem, post: dict) -> None:
+        try:
+            import re
+            from creative.store import VideoProjectStore
+            m = re.search(r"Project id:\s*(\S+)", item.content or "")
+            if not m:
+                return
+            proj = VideoProjectStore().load(m.group(1))
+            post["title"] = (proj.title or post["title"])[:100]
+            post["description"] = proj.description
+            if proj.renders:
+                post["video_path"] = proj.renders[-1]["path"]
+        except Exception:
+            pass
 
     def _log_post(self, post: dict, result: PublishResult, *, visibility: str) -> None:
         rec = {

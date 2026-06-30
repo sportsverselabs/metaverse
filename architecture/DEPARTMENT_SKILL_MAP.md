@@ -16,16 +16,21 @@
 | Sports Data | (Hub, not LLM) | scoreboard/news/standings/live/injuries/transfers fetch | **Built** |
 | Research | **Research Hermes** | `sports_topic_research_draft`, trend discovery (`last30days`), competitor research | Partial |
 | Content | **Content Hermes** | hooks, scripts, titles, descriptions, CTAs, captions text | **Built** (drafts) |
-| Video | **Video Hermes** | assemble, trim, reorder, caption-burn, render, export | **Not built** |
-| Creative | **Creative Hermes** | thumbnail, title cards, lower-thirds, brand styling | **Not built** |
+| Video | **Video Hermes** | assemble, trim, reorder, caption-burn, render, export | **Built** (Creative Studio + script/title-card pack) |
+| Creative | **Creative Hermes** | thumbnail, title cards, lower-thirds, brand styling | **Built** (Pillow thumbnails + creative pack) |
 | Social | **Social Hermes** | platform post packaging (behind publishing gates) | Partial (code) |
-| Marketing | **Marketing Hermes** | SEO, hashtags, posting-time strategy, growth ideas | Not built |
+| Marketing | **Marketing Hermes** | SEO, hashtags, posting-time strategy, growth ideas | **Built** (marketing pack; draft/advisory) |
 | Website | **Website Hermes** | site copy/sections, DNS/SSL verify | Partial |
-| Community | **Community Hermes** | template-only comment/DM replies | Not built |
-| Commerce | **Commerce Hermes** | affiliate product research/tracking | Not built |
+| Community | **Community Hermes** | template-only comment/DM replies | **Built** (community pack; templates, never sends) |
+| Commerce | **Commerce Hermes** | affiliate product research/tracking | **Built** (commerce pack; research only) |
 | Analytics | **Analytics Hermes** | metrics ingest, what-worked summaries, preference learning | Partial |
 | Development | **Dev Hermes** | code drafts, test drafts (no apply) | Partial |
-| Tech Scout | **Scout Hermes** | evaluate new tools/skills/providers (recommend, never install) | Not built |
+| Tech Scout | **Scout Hermes** | evaluate new tools/skills/providers (recommend, never install) | **Built** (tech_scout pack; recommend only) |
+
+> **2026-06-30:** department packs implemented in `skills/packs.py` (7 new draft-only skills, all
+> allowlisted), registered via `default_registry()`, with `DEPARTMENT_PACKS` mapping departments → reusable
+> skills. The 5 new departments + Knowledge Library are in `AGENT_DIRECTORY`. Note: these departments are
+> **skill packs under Hermes/OpenClaw** (draft-only), not standalone autonomous agents.
 
 ## Skill pack structure (proposed convention)
 ```
