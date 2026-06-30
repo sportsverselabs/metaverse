@@ -158,6 +158,9 @@ def shell_page(user: str) -> str:
       studioAction('trim',{{clip:cid,in_:i,out:o}});}};
     window.studioCaption=function(cid){{
       var t=document.getElementById('cap_'+cid).value; studioAction('caption',{{clip:cid,text:t}});}};
+    window.studioRevise=function(target){{
+      var ins=prompt('How should the AI revise the '+target+'?','Make it punchier and platform-appropriate.');
+      if(ins===null)return; studioAction('ai_revision',{{target:target,instruction:ins}});}};
     go('home');
     </script>"""
     return _page("Sportsverse — Dashboard", body)
