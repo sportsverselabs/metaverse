@@ -113,10 +113,11 @@ lock-in (everything behind providers).
   compliance passed → creates a `ReviewItem` in the owner Approvals queue, entering the existing
   review/scheduler/gated-publisher pipeline). Verified live on the VPS with real DeepSeek. Nothing publishes.
 - **V2 (optional):**
-  - ✅ **Whisper auto-captions BUILT (2026-06-30)** — `creative/providers/whisper_captions.py`
+  - ✅ **Whisper auto-captions BUILT + LIVE (2026-06-30)** — `creative/providers/whisper_captions.py`
     (`WhisperCaptionProvider`, local `faster-whisper`, optional dep, injected/guarded for tests) +
-    studio `auto_caption` action + per-clip "Auto-caption (Whisper)" button. Reports "not installed"
-    cleanly if `faster-whisper` isn't present.
+    studio `auto_caption` action + per-clip "Auto-caption (Whisper)" button. **`faster-whisper` installed on
+    the VPS; verified end-to-end** (FFmpeg flite TTS clip → exact transcription). Reports "not installed"
+    cleanly where `faster-whisper` is absent (e.g. local dev / CI).
   - ⏸️ **FFmpeg.wasm** (client-side scrubbing) and **Remotion** (React/Node motion templates) — **deferred**:
     both add heavy toolchains (a large WASM bundle / a full Node build) that cut against the
     "open-source/local, no heavy deps" rule for limited near-term value. Kept as future providers behind
