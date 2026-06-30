@@ -42,6 +42,12 @@ a{color:#19e3ff;text-decoration:none}
 .tile{background:#11131b;border:1px solid #20242f;border-radius:12px;padding:16px}
 .tile .k{font-size:12px;color:#8b93a7}.tile .v{font-size:26px;font-weight:800;margin-top:6px}
 .st{display:flex;justify-content:space-between;align-items:center;background:#11131b;border:1px solid #20242f;border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:14px}
+.status-row{display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:14px;align-items:center;background:#11131b;border:1px solid #20242f;border-radius:10px;padding:13px 14px;margin-bottom:9px}
+.status-title{font-size:14px;font-weight:750}.status-detail{color:#8b93a7;font-size:12px;margin-top:4px;line-height:1.35}
+.status-pill{display:inline-flex;align-items:center;gap:7px;border:1px solid #2a3142;border-radius:100px;padding:5px 10px;font-size:12px;color:#c7cdda;white-space:nowrap}
+.status-row.ok{border-color:#1f6f4d}.status-row.ok .status-pill{border-color:#27d07a66;color:#7ff0b2}
+.status-row.warn{border-color:#5d4d18}.status-row.warn .status-pill{border-color:#ffd33a66;color:#ffe084}
+.publish-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.publish-hint{color:#8b93a7;font-size:12px;margin-top:8px}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
 .dot.ok{background:#27d07a}.dot.warn{background:#ffd33a}.dot.off{background:#5b647a}
 .row{background:#11131b;border:1px solid #20242f;border-radius:10px;padding:14px;margin-bottom:10px}
@@ -51,6 +57,8 @@ a{color:#19e3ff;text-decoration:none}
 .btnsm{background:#1b2030;border:1px solid #2a3142;color:#e9edf5;border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;margin-right:6px}
 .btnsm:hover{border-color:#19e3ff}
 .btnsm.danger:hover{border-color:#ff3b30;color:#ff8a82}
+.btnsm:disabled{cursor:not-allowed;color:#6f788c;border-color:#242a38;background:#121622}
+.btnsm:disabled:hover{border-color:#242a38}
 pre{white-space:pre-wrap;background:#0c0e15;border:1px solid #20242f;border-radius:10px;padding:14px;font-size:13px;color:#c7cdda;overflow:auto}
 textarea{width:100%;background:#0c0e15;border:1px solid #20242f;border-radius:10px;padding:12px;color:#e9edf5;font-family:inherit;font-size:14px}
 """
@@ -234,16 +242,33 @@ def _r_video(s):
 
 
 def _r_publishing(s):
-    rows = "".join(f"<div class=st><span>{_esc(c['platform'])}</span><span>{_esc(c['status'])}</span></div>" for c in s["connections"])
+    def conn_row(c):
+        state = _esc(c.get("state", "warn"))
+        return (f"<div class='status-row {state}'><div>"
+                f"<div class=status-title>{_esc(c['platform'])}</div>"
+                f"<div class=status-detail>{_esc(c.get('detail', ''))}</div></div>"
+                f"<span class=status-pill><span class='dot {state}'></span>{_esc(c['status'])}</span></div>")
+    rows = "".join(conn_row(c) for c in s["connections"])
+    targets = s.get("publish_targets", [])
     def item_row(i):
         iid = _esc(i["id"])
+        buttons = []
+        hints = []
+        for target in targets:
+            platform = _esc(target["platform"])
+            visibility = _esc(target["visibility"])
+            label = _esc(target["button"])
+            note = _esc(target.get("note", ""))
+            if target.get("enabled"):
+                buttons.append(
+                    f"<button class=btnsm onclick=\"dashPublish('{iid}','{platform}','{visibility}')\">{label}</button>")
+            else:
+                buttons.append(f"<button class=btnsm disabled title=\"{note}\">{label} pending</button>")
+                hints.append(f"{_esc(target['label'])}: {note}")
+        hint_html = f"<div class=publish-hint>{' &middot; '.join(hints)}</div>" if hints else ""
         return (f"<div class=row><h4>{_esc(i['skill'])} - {iid}</h4>"
                 f"<div class=meta>{_esc(i['status'])}</div>"
-                f"<div style='margin-top:10px'>"
-                f"<button class=btnsm onclick=\"dashPublish('{iid}','youtube','private')\">YouTube private</button>"
-                f"<button class=btnsm onclick=\"dashPublish('{iid}','tiktok','draft')\">TikTok draft</button>"
-                f"<button class=btnsm onclick=\"dashPublish('{iid}','instagram','test')\">Instagram test</button>"
-                f"</div></div>")
+                f"<div class=publish-actions>{''.join(buttons)}</div>{hint_html}</div>")
     items = "".join(item_row(i) for i in s.get("publishable", [])) or "<p class=muted>No approved or scheduled items ready to publish.</p>"
     return (f"<h2>Publishing</h2><div class=note>{_esc(s['note'])}</div>{rows}"
             f"<h3 style='margin:22px 0 10px'>Ready to publish</h3>{items}")

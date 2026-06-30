@@ -59,3 +59,31 @@ def test_sports_and_skills_sections(tmp_path):
 def test_home_section_has_metrics_and_status():
     frag = ui.render_section("home", DashboardData())
     assert "Components" in frag and "cost" in frag.lower()
+
+
+def test_publishing_section_shows_youtube_connected_and_pending_platforms():
+    frag = ui._r_publishing({
+        "note": "Publishing status",
+        "connections": [
+            {"platform": "YouTube", "status": "connected", "state": "ok",
+             "detail": "Private uploads enabled for Platinum Clips."},
+            {"platform": "TikTok", "status": "pending setup", "state": "warn",
+             "detail": "Needs TikTok developer app."},
+            {"platform": "Instagram", "status": "pending setup", "state": "warn",
+             "detail": "Needs Meta app review."},
+        ],
+        "publish_targets": [
+            {"platform": "youtube", "label": "YouTube", "visibility": "private",
+             "button": "YouTube private", "enabled": True, "note": "Ready."},
+            {"platform": "tiktok", "label": "TikTok", "visibility": "draft",
+             "button": "TikTok draft", "enabled": False, "note": "Pending."},
+            {"platform": "instagram", "label": "Instagram", "visibility": "test",
+             "button": "Instagram test", "enabled": False, "note": "Pending."},
+        ],
+        "publishable": [{"id": "rv1", "skill": "video_project", "status": "owner_approved"}],
+    })
+    assert "Private uploads enabled for Platinum Clips." in frag
+    assert "dashPublish('rv1','youtube','private')" in frag
+    assert "TikTok draft pending" in frag
+    assert "Instagram test pending" in frag
+    assert frag.count("disabled") >= 2

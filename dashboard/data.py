@@ -145,17 +145,63 @@ class DashboardData:
         from review.models import STATUS_OWNER_APPROVED, STATUS_SCHEDULED
         rs = self.dash.review_store
         publishable = rs.list(status=STATUS_OWNER_APPROVED) + rs.list(status=STATUS_SCHEDULED)
+        youtube_connected = bool(social["youtube"]["configured"])
+        tiktok_connected = bool(social["tiktok"]["configured"])
+        instagram_connected = bool(social["instagram"]["configured"])
+        publish_targets = [
+            {
+                "platform": "youtube",
+                "label": "YouTube",
+                "visibility": "private",
+                "button": "YouTube private",
+                "enabled": youtube_connected,
+                "note": "Ready: uploads start private on Platinum Clips."
+                if youtube_connected else "Needs YouTube OAuth credentials.",
+            },
+            {
+                "platform": "tiktok",
+                "label": "TikTok",
+                "visibility": "draft",
+                "button": "TikTok draft",
+                "enabled": tiktok_connected,
+                "note": "Pending: TikTok developer app/OAuth still needs setup.",
+            },
+            {
+                "platform": "instagram",
+                "label": "Instagram",
+                "visibility": "test",
+                "button": "Instagram test",
+                "enabled": instagram_connected,
+                "note": "Pending: Meta/Instagram business token still needs setup.",
+            },
+        ]
         return {"connections": [
-            {"platform": "Website", "status": "connected (sportsversenews.com)"},
-            {"platform": "Telegram bot", "status": "connected" if c.secret("TELEGRAM_BOT_TOKEN") else "needs owner setup"},
-            {"platform": "Email (Gmail)", "status": "connected" if email else "needs owner setup (Gmail App Password)"},
-            {"platform": "YouTube", "status": social["youtube"]["status"]},
-            {"platform": "TikTok", "status": social["tiktok"]["status"]},
-            {"platform": "Instagram", "status": social["instagram"]["status"]},
+            {"platform": "Website", "status": "connected", "state": "ok",
+             "detail": "sportsversenews.com is live."},
+            {"platform": "Telegram bot", "status": "connected" if c.secret("TELEGRAM_BOT_TOKEN") else "needs setup",
+             "state": "ok" if c.secret("TELEGRAM_BOT_TOKEN") else "warn",
+             "detail": "Owner alerts and dashboard 2FA." if c.secret("TELEGRAM_BOT_TOKEN")
+             else "Add TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID in server .env."},
+            {"platform": "Email (Gmail)", "status": "connected" if email else "needs setup",
+             "state": "ok" if email else "warn",
+             "detail": "Gmail app password configured." if email else "Needs Gmail App Password."},
+            {"platform": "YouTube", "status": "connected" if youtube_connected else "needs setup",
+             "state": "ok" if youtube_connected else "warn",
+             "detail": "Private uploads enabled for Platinum Clips." if youtube_connected
+             else "Needs YOUTUBE_CLIENT_ID / SECRET / REFRESH_TOKEN."},
+            {"platform": "TikTok", "status": "pending setup" if not tiktok_connected else "connected",
+             "state": "warn" if not tiktok_connected else "ok",
+             "detail": "Needs TikTok developer app, callback, and OAuth token before draft uploads."
+             if not tiktok_connected else "Draft/inbox uploads enabled."},
+            {"platform": "Instagram", "status": "pending setup" if not instagram_connected else "connected",
+             "state": "warn" if not instagram_connected else "ok",
+             "detail": "Needs Meta app review/business token before test publishing."
+             if not instagram_connected else "Instagram test publishing enabled."},
         ], "publishable": [
             {"id": i.id, "skill": i.skill, "status": i.status}
             for i in publishable
-        ], "note": "Publishing is live-gated. Only owner-approved/scheduled items can be posted, private/draft first where supported."}
+        ], "publish_targets": publish_targets,
+            "note": "Publishing is live-gated. YouTube is connected for private uploads; Instagram and TikTok stay pending until their owner setup is complete."}
 
     def analytics(self) -> dict:
         s = self._analytics.summarize()
