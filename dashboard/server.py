@@ -111,6 +111,21 @@ def _handler_class():
                 except Exception as exc:
                     _log.error("section render failed: %s", section)
                     return self._send(200, "text/html", f"<div class=note>Could not load '{section}': {exc}</div>")
+            if path == "/dashboard/studio":
+                if not self._session_user():
+                    return self._send(401, "text/html", "<div class=note>Session expired. Reload.</div>")
+                from dashboard import studio
+                pid = qs.get("project", [""])[0]
+                return self._send(200, "text/html; charset=utf-8", studio.editor_html(pid))
+            if path == "/dashboard/studio/media":
+                if not self._session_user():
+                    return self._send(401, "text/plain", b"unauthorized")
+                from dashboard import studio
+                resolved = studio.media_path(qs.get("project", [""])[0], qs.get("file", [""])[0])
+                if not resolved:
+                    return self._send(404, "text/plain", b"not found")
+                target, ctype = resolved
+                return self._send(200, ctype, target.read_bytes())
             # main entry (/, /dashboard, /dashboard/)
             if self._session_user():
                 return self._send(200, "text/html; charset=utf-8", ui.shell_page(self._session_user()))
@@ -155,6 +170,14 @@ def _handler_class():
                     return self._send(200, "application/json", json.dumps({"error": f"Hermes error: {exc}"}))
             if path == "/dashboard/action":
                 return self._do_action(self._body_json())
+            if path == "/dashboard/studio/action":
+                from dashboard import studio
+                try:
+                    result = studio.studio_action(self._body_json(), actor=self._session_user())
+                except Exception as exc:
+                    _log.error("studio action failed: %s", type(exc).__name__)
+                    result = {"error": f"studio error: {type(exc).__name__}"}
+                return self._send(200, "application/json", json.dumps(result))
             return self._send(404, "application/json", json.dumps({"error": "not found"}))
 
         def _do_action(self, body):

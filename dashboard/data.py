@@ -19,7 +19,7 @@ from providers.model_router import CostTracker
 
 SECTIONS = [
     ("home", "Home"), ("ask", "Ask Hermes"), ("approvals", "Approvals"),
-    ("pipeline", "Content Pipeline"), ("video", "Video Review"), ("publishing", "Publishing"),
+    ("pipeline", "Content Pipeline"), ("video", "Creative Studio"), ("publishing", "Publishing"),
     ("analytics", "Analytics"), ("reports", "Reports"), ("agents", "Agents"),
     ("skills", "Skills"), ("sports", "Sports Data"),
     ("security", "Security"), ("costs", "Costs"), ("backups", "Backups"),
@@ -135,11 +135,8 @@ class DashboardData:
         ]}
 
     def video(self) -> dict:
-        return {"placeholder": True,
-                "note": "Video review center: embedded player + upload/download are not built yet (placeholder).",
-                "tools": ["CapCut — quick TikTok/Reels/Shorts edits",
-                          "Canva — thumbnails & graphics",
-                          "DaVinci Resolve — advanced editing"]}
+        # Rendered by dashboard.studio.overview_html() (Creative Studio V1b); data handled there.
+        return {"studio": True}
 
     def publishing(self) -> dict:
         c = self.config

@@ -134,6 +134,30 @@ def shell_page(user: str) -> str:
         .then(function(r){{return r.json();}}).then(function(j){{alert(j.message||j.error||'done');go('publishing');}})
         .catch(function(){{alert('Publish action failed.');}});
     }};
+    var _studioPid=null;
+    window.openStudio=function(pid){{
+      _studioPid=pid;
+      var m=document.getElementById('main'); m.innerHTML='<h2>Loading…</h2>';
+      fetch('/dashboard/studio?project='+encodeURIComponent(pid)).then(function(r){{return r.text();}})
+        .then(function(h){{m.innerHTML=h;}}).catch(function(){{m.innerHTML='<div class=note>Could not load project.</div>';}});
+    }};
+    window.studioAction=function(action,payload){{
+      payload=payload||{{}}; payload.action=action; if(_studioPid&&!payload.project)payload.project=_studioPid;
+      if(action==='render'){{var m=document.getElementById('main'); if(m)m.insertAdjacentHTML('afterbegin','<div class=note id=rmsg>Rendering… please wait.</div>');}}
+      fetch('/dashboard/studio/action',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify(payload)}})
+        .then(function(r){{return r.json();}}).then(function(j){{
+          if(j.error){{alert(j.error);}}
+          else if(j.message){{}}
+          if(j.project){{openStudio(j.project);}} else {{go('video');}}
+          if(j.message&&!j.error){{setTimeout(function(){{alert(j.message);}},50);}}
+        }}).catch(function(){{alert('Studio action failed.');}});
+    }};
+    window.studioReorder=function(cid,dir){{studioAction('reorder',{{clip:cid,dir:dir}});}};
+    window.studioTrim=function(cid){{
+      var i=document.getElementById('in_'+cid).value, o=document.getElementById('out_'+cid).value;
+      studioAction('trim',{{clip:cid,in_:i,out:o}});}};
+    window.studioCaption=function(cid){{
+      var t=document.getElementById('cap_'+cid).value; studioAction('caption',{{clip:cid,text:t}});}};
     go('home');
     </script>"""
     return _page("Sportsverse — Dashboard", body)
@@ -201,9 +225,9 @@ def _r_pipeline(s):
 
 
 def _r_video(s):
-    tools = "".join(f"<li>{_esc(t)}</li>" for t in s["tools"])
-    return (f"<h2>Video Review</h2><div class=note>{_esc(s['note'])}</div>"
-            f"<h3 style='margin:16px 0 10px'>Recommended editing tools</h3><ul>{tools}</ul>")
+    # Creative Studio (V1b): the dashboard-native video editor overview.
+    from dashboard import studio
+    return studio.overview_html()
 
 
 def _r_publishing(s):
