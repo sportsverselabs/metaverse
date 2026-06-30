@@ -107,7 +107,11 @@ lock-in (everything behind providers).
   Telegram "draft ready" ping on render. **FFmpeg + Pillow installed on the VPS; a real render + thumbnail
   were verified end-to-end on the server.** Renders are local drafts only — nothing publishes. (Render is
   synchronous for now — fine for short drafts; can move to a job queue later.)
-- **V1c (AI + compliance loop):** "Request AI revision" (DeepSeek) + compliance re-check on every render + approval → review/scheduler wiring.
+- **V1c (AI + compliance loop):** ✅ **BUILT + DEPLOYED (2026-06-30)** — "Request AI revision" (DeepSeek
+  rewrites title/description/caption, draft-only + budget-gated + logged), **compliance re-check on every
+  render** (+ on demand; stored on the project), and **Submit for review** (gated on a render existing AND
+  compliance passed → creates a `ReviewItem` in the owner Approvals queue, entering the existing
+  review/scheduler/gated-publisher pipeline). Verified live on the VPS with real DeepSeek. Nothing publishes.
 - **V2 (optional):** FFmpeg.wasm client scrubbing, Whisper auto-captions, Remotion motion templates — each behind its provider, owner-gated for any cost.
 
 ## 10. Does the current architecture support this? (answer)
