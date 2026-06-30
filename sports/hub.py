@@ -138,6 +138,10 @@ class SportsDataHub:
     def upcoming_games(self, leagues: Optional[list[str]] = None) -> list[dict]:
         return self._games_by_state({"pre"}, leagues)
 
+    def completed_games(self, leagues: Optional[list[str]] = None) -> list[dict]:
+        # Final scores from the scoreboard (real results — not invented).
+        return self._games_by_state({"post"}, leagues)
+
     def latest_news(self, leagues: Optional[list[str]] = None, per_league: int = 3) -> list[dict]:
         out = []
         for lg in (leagues or list(LEAGUES)):

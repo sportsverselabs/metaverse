@@ -183,6 +183,63 @@ def test_hub_without_football_key(tmp_path):
     assert hub.providers_status()["API-Football"]["state"] == "needs API key"
 
 
+def _empty_hub(tmp_path):
+    """Hub with NO live/upcoming/completed games and NO news (worst case for fallback)."""
+    empty = {"events": [], "articles": []}
+    return SportsDataHub(
+        cache=SportsCache(tmp_path / "c.db"),
+        espn=ESPNClient(fetch=lambda url: empty),
+        football=APIFootballClient(api_key="x", fetch=lambda p, par: {"errors": [], "response": []}),
+        health=SportsApiHealthMonitor(state_path=tmp_path / "h.json"),
+    )
+
+
+def test_soccer_ideas_without_live_data_still_returns_three(tmp_path):
+    from sports.context import SportsContext, _VALID_BASIS
+    sc = SportsContext(hub=_empty_hub(tmp_path))
+    ideas = sc.highlight_ideas("make me 3 soccer video highlights", n=3)
+    assert len(ideas) == 3
+    assert all(i["basis"] in _VALID_BASIS for i in ideas)          # every idea marks its source basis
+    blob = " ".join(i["title"] + " " + i["angle"] for i in ideas).lower()
+    assert "soccer" in blob                                         # sport-correct (not MLB/NFL)
+
+
+def test_soccer_ideas_do_not_invent_scores(tmp_path):
+    import re
+    from sports.context import SportsContext
+    sc = SportsContext(hub=_empty_hub(tmp_path))
+    ideas = sc.highlight_ideas("3 soccer highlight videos", n=3)
+    blob = " ".join(i["title"] + " " + i["angle"] + " " + i["source"] for i in ideas)
+    assert not re.search(r"\d+\s*[-–]\s*\d+", blob)            # no fabricated "2-1" scores
+
+
+def test_soccer_ideas_brief_marks_basis_and_forbids_invention(tmp_path):
+    from sports.context import SportsContext
+    sc = SportsContext(hub=_empty_hub(tmp_path))
+    brief = sc.brief("make me 3 soccer video highlights")
+    assert brief and "BASIS" in brief.upper()
+    assert "1." in brief and "2." in brief and "3." in brief        # 3 ideas
+    assert "trending-topic" in brief and "evergreen" in brief       # fallback tiers labeled
+    assert "do not invent" in brief.lower()
+
+
+def test_live_data_preferred_when_available(tmp_path):
+    from sports.context import SportsContext, BASIS_LIVE
+    sc = SportsContext(hub=_offline_hub(tmp_path))                  # _SCOREBOARD has an in-progress game
+    ideas = sc.highlight_ideas("3 soccer highlights", n=3)
+    assert ideas[0]["basis"] == BASIS_LIVE                          # live preferred over fallback
+
+
+def test_soccer_request_routes_through_gated_content_path():
+    # A highlight request is NOT a data query, so it flows through the content agent + compliance gate
+    # (not the no-LLM fast path) — compliance runs and nothing publishes (gate proven in test_phase4_graph).
+    from sports.context import SportsContext
+    req = "make me 3 soccer video highlights"
+    assert SportsContext.is_sports_related(req)
+    assert SportsContext.detect_sport(req) == "soccer"
+    assert SportsContext.is_data_query(req) is False
+
+
 def test_health_alerts_after_three_failures(tmp_path):
     alerts = []
     mon = SportsApiHealthMonitor(state_path=tmp_path / "h.json", alert_threshold=3,

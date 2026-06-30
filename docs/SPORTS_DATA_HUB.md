@@ -65,6 +65,13 @@ games, and latest news, with a **Manual refresh** button. **Home** shows ESPN + 
   real-data block (live/upcoming/headlines) is injected into the agent prompt so drafts use real
   scores instead of guessing. Wired in `node_jarvis_input` → `state.sports_brief`, consumed by
   `ResearchAgent` / `ContentAgent`.
+- **Sport scoping + fallback (idea requests):** a request like *"make me 3 soccer video highlights"* is
+  scoped to the right sport (`detect_sport` → `soccer` → Premier League / MLS + API-Football), and
+  **no live games ≠ no ideas**. `highlight_ideas()` falls through a preference chain and tags every idea
+  with its **basis**: live data → recent results → recent news → trending topic → evergreen concept.
+  Live data is preferred; evergreen/trending carry **no scores or events** so nothing is invented.
+  Idea requests stay on the gated content path (not the no-LLM fast answer), so compliance still runs and
+  nothing publishes.
 Both are best-effort: if the Hub is unavailable the agents fall back to normal behavior.
 
 ## Tests

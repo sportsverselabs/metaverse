@@ -6,6 +6,34 @@
 
 ---
 
+## Session: 2026-06-30 (j) — Hermes sports routing: sport scoping + fallback ideas
+
+**Agent:** Claude Code (Opus 4.8)
+**Goal:** Fix "make me 3 soccer video highlights" returning "no soccer games" when the live hub only had
+MLB/NFL. **No live games must not mean no content ideas.**
+
+### What changed
+- `sports/context.py`: added **sport detection** (`detect_sport`/`sport_scope`) — "soccer" now maps to
+  Premier League + MLS + API-Football (previously unrecognized → fell back to MLB/NFL). Added
+  `research_basis()` and `highlight_ideas()` with a **fallback chain**: live → upcoming → recent results →
+  recent news → **trending topics** → **evergreen concepts**. Every idea is tagged with a **basis**
+  (`live-data` / `recent-news` / `trending-topic` / `evergreen`). Live data is preferred; trending/evergreen
+  carry NO scores or events (nothing invented). `brief()` now emits a basis-labeled idea scaffold for
+  idea/highlight requests and instructs the model "do not invent scores, quotes, players, or events."
+- `sports/hub.py`: added `completed_games()` (final scores = real, from the scoreboard).
+- Idea requests are NOT data-queries → they stay on the gated content path (compliance runs, nothing publishes).
+
+### Tests (added to `tests/test_sports.py`)
+- soccer request with no live data still returns 3 valid soccer ideas; no invented scores; basis marked on
+  each idea + in the brief; live preferred when available; routing stays on the gated content path.
+- `python -m pytest` → **174 passing**. Verified live: "make me 3 soccer video highlights" → 3 real soccer
+  ideas (PL/MLS fixtures), not MLB/NFL.
+
+### Docs updated
+`docs/SPORTS_DATA_HUB.md` (sport scoping + fallback section), this handoff.
+
+---
+
 ## Session: 2026-06-28 (audit) — Endpoint audit + Creative Studio plan (DOCS ONLY)
 
 **Agent:** Claude Code (Opus 4.8)
