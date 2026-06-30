@@ -94,7 +94,13 @@ local until an explicit gated publish; no unapproved OpenClaw skills; no secrets
 lock-in (everything behind providers).
 
 ## 9. Build phases (when approved to build)
-- **V1a (foundation):** `VideoProject` model + storage + `FfmpegVideoEditor` (assemble/trim/reorder/render) + `PillowThumbnailProvider`; CLI render; **offline tests with tiny fixture media** (no network). No UI yet.
+- **V1a (foundation):** ✅ **BUILT (2026-06-30)** — `creative/` package: `VideoProject` model + `VideoProjectStore`,
+  provider interfaces (`VideoEditorProvider`/`ThumbnailProvider`/`CaptionProvider`) with local impls
+  (`FfmpegVideoEditor`, `PillowThumbnailProvider`, `SrtCaptionProvider`), render-spec + caption-offset
+  builders, and a headless CLI (`python -m creative demo|show|list|render`). 14 offline tests (ffmpeg/Pillow
+  injected/guarded — suite needs neither). Renders go to local files only; nothing publishes. No UI yet.
+  **Note:** real rendering needs `ffmpeg` on the host; thumbnails need `pip install Pillow` — both report
+  "not configured" clearly when absent.
 - **V1b (studio UI):** Creative Studio dashboard section (preview + clip list + caption edit + thumbnail) wired to V1a via providers; background render job + Telegram "ready" ping.
 - **V1c (AI + compliance loop):** "Request AI revision" (DeepSeek) + compliance re-check on every render + approval → review/scheduler wiring.
 - **V2 (optional):** FFmpeg.wasm client scrubbing, Whisper auto-captions, Remotion motion templates — each behind its provider, owner-gated for any cost.
