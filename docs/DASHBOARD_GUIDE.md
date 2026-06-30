@@ -32,7 +32,7 @@ Honesty key: **✅ real** = live working data/actions · **🟡 functional** = w
 | 2 | **Ask Hermes** | 🟡 functional | Type a request; it runs through Hermes → the agents (live DeepSeek). Returns a result. Does **not** publish anything — output is for your review. |
 | 3 | **Approvals** | ✅ real | Pending content and actions. Buttons: **Approve**, **Request edit**, **Reject**, **Schedule**. Wired to the real review system. Approving ≠ publishing. |
 | 4 | **Content Pipeline** | real | Counts of items at each stage: drafting -> waiting approval -> needs edit -> approved -> scheduled -> rejected -> published. Published only changes after the explicit Phase 5 publisher succeeds. |
-| 5 | **Video Review** | ⚪ placeholder | Lists editing tools (CapCut, Canva, DaVinci). The embedded player + upload/download are **not built yet** (labeled in-app). |
+| 5 | **Creative Studio** | 🟡 functional | Dashboard-native video editor. Preview a draft render, reorder/trim clips, edit captions, generate a thumbnail, and render a draft (local file only — **nothing publishes**). Approve / AI-revision arrive in V1c. Rendering needs FFmpeg on the server (installed). |
 | 6 | **Publishing** | functional | Shows real platform connection status from server-side adapters. Owner-approved/scheduled items can be explicitly published to YouTube private, TikTok draft, or Instagram test/public-guarded flows once credentials exist. |
 | 7 | **Analytics** | ⚪ placeholder | Shows only recorded data. Real views/likes/watch-time need platform API connections (Phase 5). |
 | 8 | **Reports** | ✅ real | Daily and weekly summaries built from the system's own activity journal. |

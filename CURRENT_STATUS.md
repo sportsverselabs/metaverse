@@ -43,6 +43,12 @@ FFmpeg/MoviePy/Pillow — open-source, no paid lock-in, DeepSeek stays default).
 alerts, agent-grounding), dashboard redesign (16 sections, login + Telegram 2FA), real Gmail email
 reports — all deployed.
 
+**2026-06-30 — Phase 6 Creative Studio V1a + V1b BUILT & DEPLOYED.** `creative/` (VideoProject model,
+store, FFmpeg/Pillow/SRT providers, CLI) + `dashboard/studio.py` (Creative Studio UI: preview, clip
+reorder/trim, caption edit, thumbnail, render draft). FFmpeg + Pillow installed on the VPS; a real
+render + thumbnail were verified end-to-end on the server. Renders are local drafts only — nothing
+publishes. `python -m pytest` → **154 passing**. Next: V1c (AI revision + compliance re-check + approval wiring).
+
 ## Current Working Module
 `publishing/` adapters/service, `agents/social_publishing_agent.py`, `dashboard/{data,server,app}.py`, and `review/models.py`.
 

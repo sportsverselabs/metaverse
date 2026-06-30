@@ -101,7 +101,12 @@ lock-in (everything behind providers).
   injected/guarded — suite needs neither). Renders go to local files only; nothing publishes. No UI yet.
   **Note:** real rendering needs `ffmpeg` on the host; thumbnails need `pip install Pillow` — both report
   "not configured" clearly when absent.
-- **V1b (studio UI):** Creative Studio dashboard section (preview + clip list + caption edit + thumbnail) wired to V1a via providers; background render job + Telegram "ready" ping.
+- **V1b (studio UI):** ✅ **BUILT + DEPLOYED (2026-06-30)** — `dashboard/studio.py`: Creative Studio
+  section (overview + per-project editor: preview, clip reorder/trim, caption edit, thumbnail, render
+  draft). Routes `/dashboard/studio`, `/dashboard/studio/media` (path-traversal safe), `/dashboard/studio/action`.
+  Telegram "draft ready" ping on render. **FFmpeg + Pillow installed on the VPS; a real render + thumbnail
+  were verified end-to-end on the server.** Renders are local drafts only — nothing publishes. (Render is
+  synchronous for now — fine for short drafts; can move to a job queue later.)
 - **V1c (AI + compliance loop):** "Request AI revision" (DeepSeek) + compliance re-check on every render + approval → review/scheduler wiring.
 - **V2 (optional):** FFmpeg.wasm client scrubbing, Whisper auto-captions, Remotion motion templates — each behind its provider, owner-gated for any cost.
 
