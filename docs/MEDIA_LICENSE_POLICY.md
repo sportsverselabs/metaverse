@@ -30,3 +30,11 @@ risks on drafts. Nothing reaches publishing without passing the human approval g
 
 ## Attribution log
 If any CC-attribution asset is used, record it in `docs/MEDIA_ATTRIBUTIONS.md` (source URL, license, author).
+
+## Generated storyboard visuals (2026-07-01)
+
+The Creative Studio "New from prompt" feature builds 30s drafts from **Sportsverse-generated** visuals
+(branded title/beat/CTA cards rendered by ffmpeg). These are safe to use (CC0-equivalent — we create them).
+Every clip carries provenance (`Clip.meta.source_kind` = generated / owner_upload / licensed); the editor
+shows a media-safety banner. **No real match footage is ever downloaded or fabricated.** Before publishing,
+the owner replaces generated placeholders with owner-uploaded (rights asserted) or clearly-licensed clips.

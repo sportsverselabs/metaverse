@@ -26,7 +26,7 @@
 | Brand / domain | **Sportsverse** / sportsversenews.com (legacy "SportsVersusNews" strings are cosmetic) |
 | Tech stack | Python 3.9+ + `openai` SDK (DeepSeek live); LangGraph + Nemotron optional `[LOCKED]` |
 | LLM | **DeepSeek live and verified** (foundational, low-cost); Nemotron optional (off); mock fallback intact |
-| Tests | `python -m pytest` → **184 passing** (2026-06-28) |
+| Tests | `python -m pytest` → **191 passing** (2026-06-28) |
 | Document owner | Project Owner (Kamal) |
 
 > **2026-06-28 — Endpoint audit complete.** The full endpoint vision + honest per-item status now lives

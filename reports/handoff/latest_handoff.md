@@ -55,6 +55,34 @@ match the prompt. Keep all publishing gated; do not auto-upload.
 
 ---
 
+## Session: 2026-07-01 (l) — Hermes prompts → VideoProjects with safe generated visuals + true 30s render
+
+**Agent:** Claude Code (Opus 4.8). **Goal:** wire a Hermes video prompt into a Creative Studio
+VideoProject with **license-safe** soccer visuals and render a real, prompt-matched 30-second draft.
+
+### Built
+- **`creative/storyboard.py`** — `build_from_prompt(prompt)` → a VideoProject whose scenes = hook +
+  grounded soccer beats (`SportsContext.highlight_ideas`, **no invented scores**) + CTA. Each scene is a
+  **Sportsverse-generated** branded card rendered by ffmpeg drawtext (textfile, DejaVu font). Scene
+  durations sum to exactly the target (30s).
+- **`creative/models.py`** — `Clip.meta` provenance (`source_kind`: `generated` / `owner_upload` /
+  `licensed`) + `license_safe`. Honors `docs/MEDIA_LICENSE_POLICY.md`: **never scrapes/fabricates real
+  match footage**; generated visuals are labelled safe placeholders; unknown provenance = not safe.
+- **`dashboard/studio.py`** — "✦ New from prompt" action + button + JS; `attach_media` for owner-uploaded
+  footage (drop a file in the project's assets folder, attach it → marked owner_upload); editor shows
+  per-clip provenance + a media-safety banner.
+
+### Verified on the VPS (real render)
+Installed `fonts-dejavu-core`. "make me 3 soccer video highlights" → 5 scenes (hook 4s + 3×7s beats +
+CTA 5s) → `render_draft.mp4` **duration 30.000s**, compliance passed, **nothing published**. Editor shows
+video preview + "source: generated ✓ safe to use" per clip + the safety banner.
+
+### Tests
+`tests/test_storyboard.py` (6, offline, injected scene renderer): 30s sum, safe generated provenance,
+no invented scores, persistence, owner-upload provenance. `python -m pytest` → **191 passing**.
+
+---
+
 ## Session: 2026-07-01 (k) — Dashboard workflow debug: render / thumbnail / pipeline-approval
 
 **Agent:** Claude Code (Opus 4.8). **Goal:** fix owner-reported Creative Studio + Approvals issues.
