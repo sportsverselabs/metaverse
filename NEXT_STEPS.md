@@ -8,7 +8,7 @@
 
 ## Where we are (2026-06-28)
 Phases 0–4 complete; Phase 5 (publishing) **code complete behind gates**; **deployed live** on the VPS.
-Stack is **Python + `openai` SDK** (DeepSeek live). `python -m pytest` → **134 tests** pass.
+Stack is **Python + `openai` SDK** (DeepSeek live). `python -m pytest` → **184 tests** pass.
 - Hermes Operating Core: Jarvis → Hermes → cost router → worker → compliance → approval → execution → journal.
 - **Sports Data Hub live** (ESPN + API-Football, cache, health, Telegram alerts, agent grounding).
 - **Dashboard live** (16 sections, login + Telegram 2FA); **email reports live**; **publisher code** ready

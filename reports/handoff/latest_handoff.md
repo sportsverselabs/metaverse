@@ -6,6 +6,35 @@
 
 ---
 
+## Session: 2026-07-01 (k) — Dashboard workflow debug: render / thumbnail / pipeline-approval
+
+**Agent:** Claude Code (Opus 4.8). **Goal:** fix owner-reported Creative Studio + Approvals issues.
+
+### Root causes + fixes
+- **Render "ffmpeg exited 254":** demo project referenced `assets/clip1.mp4` (relative, **missing**); the
+  UI showed ffmpeg's *version banner* because stderr was truncated from the front. Fix: `preflight()` in
+  `creative/providers/ffmpeg_editor.py` validates inputs-exist / output-writable / valid-trim / ffmpeg-
+  installed **before** running; `_error_summary()` strips the banner and shows the real stderr tail; full
+  detail logged (`creative.ffmpeg`). Demo now **generates a real sample clip** (ffmpeg lavfi) so it renders.
+- **Thumbnail "generated" but invisible:** saved to `.../assets/thumbnail.png` but preview looked in the
+  project **root**. Fix: save thumbnail at project root (`reports/video/<id>/thumbnail.png`); existence
+  re-checked; editor shows a **Files & status** debug block + Refresh button.
+- **Pipeline 0 while Approvals showed gated actions:** the 3 `publish_content` actions came from
+  research_agent tasks that never produced a review draft → **orphaned** (approval queue and review store
+  are separate). Fix: `review/reconcile.py` cross-checks actions vs review records; dashboard flags orphans
+  "needs repair"; pipeline shows gated-action + orphan counts; `python -m review reconcile --apply` (and
+  `scripts/reconcile_approvals.py`) safely reject orphans (reversible). Cleared the 3 real orphans on the VPS.
+
+### Tests + smoke
+- 8 new offline tests (`tests/test_dashboard_workflow.py`) + updated `test_creative.py`. `python -m pytest`
+  → **184 passing**. `scripts/smoke_studio.py` on the VPS → **ALL PASS**: demo → render → thumbnail →
+  files exist → previews show → no orphans → nothing published.
+
+### Docs updated
+`CURRENT_STATUS.md`, `NEXT_STEPS.md`, `PROJECT_DNA.md`, `README.md`, this handoff.
+
+---
+
 ## Session: 2026-06-30 (j) — Hermes sports routing: sport scoping + fallback ideas
 
 **Agent:** Claude Code (Opus 4.8)

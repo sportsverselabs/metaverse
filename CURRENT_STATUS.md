@@ -31,7 +31,7 @@ The system is **deployed and operating in production** on the Hostinger VPS.
 ## Current Development Phase
 **Phase 5 (publishing) code complete behind gates; Phase 6 (Creative Studio) planned next.**
 The real publisher service + YouTube/IG/TikTok adapters exist behind owner approval (missing creds
-return "not configured"; no autonomous publishing). `python -m pytest` → **134 passing**.
+return "not configured"; no autonomous publishing). `python -m pytest` → **184 passing**.
 
 **2026-06-28 — Endpoint audit done (docs only, no features built).** Full endpoint vision + honest
 status: `architecture/MASTER_ENDPOINT_RUBRIC.md` (+ `BUILD_GAP_ANALYSIS.md`, `CREATIVE_STUDIO_PLAN.md`,
@@ -49,7 +49,7 @@ clip reorder/trim, caption edit, thumbnail, render draft, **AI revision via Deep
 re-check on render**, **Submit for review** → Approvals queue → scheduler → gated publisher). FFmpeg +
 Pillow installed on the VPS; the full V1a→V1c flow (real DeepSeek title rewrite → render → compliance →
 submit) was verified end-to-end on the server. Renders are local drafts; nothing publishes without owner
-approval + the separate gated publisher. `python -m pytest` → **159 passing**.
+approval + the separate gated publisher. `python -m pytest` → **184 passing**.
 
 Next options: V2 creative (Whisper auto-captions, FFmpeg.wasm scrubbing, Remotion templates) or build out
 remaining departments (Creative/Marketing/Community/Commerce/Tech-Scout, Knowledge Library, skill packs).
@@ -60,7 +60,7 @@ remaining departments (Creative/Marketing/Community/Commerce/Tech-Scout, Knowled
 Knowledge Library in `AGENT_DIRECTORY`, (3) **Whisper auto-captions** (`creative/providers/whisper_captions.py`
 + studio `auto_caption`), (4) **Studio→YouTube bridge** (`PublishingService._post_from_item` attaches the
 rendered video + title to a `video_project` review item). **FFmpeg.wasm + Remotion deferred** (heavy deps).
-`python -m pytest` → **168 passing**. **YouTube upload itself is still BLOCKED on owner credentials**
+`python -m pytest` → **184 passing**. **YouTube upload itself is still BLOCKED on owner credentials**
 (OAuth `client_secret.json` + refresh token — see docs/PHASE5_SETUP.md §2); the path is wired and ready.
 
 ## Current Working Module
