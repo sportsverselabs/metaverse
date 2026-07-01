@@ -110,6 +110,24 @@ def cmd_schedule(service: ReviewService, args) -> int:
     return 0
 
 
+def cmd_reconcile(service: ReviewService, args) -> int:
+    """Detect (and with --apply, safely reject) orphaned gated actions with no backing draft."""
+    from review.reconcile import reconcile
+    result = reconcile(apply=args.apply)
+    orphans = result["orphaned"]
+    if not orphans:
+        print("No orphaned gated actions. Approvals is consistent.")
+        return 0
+    print(f"Found {len(orphans)} orphaned gated action(s):")
+    for o in orphans:
+        print(f"  {o['id']}  {o['action']}  (task {o['task_id'] or '—'}) — {o['reason']}")
+    if args.apply:
+        print(f"Rejected {len(result['rejected'])} orphaned action(s) (reversible; records retained).")
+    else:
+        print("Dry run. Re-run with --apply to reject these orphaned actions. Nothing publishes.")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="review", description="Sportsverse OS owner-review surface (no publishing).")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -140,6 +158,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_sched = sub.add_parser("schedule", help="approve for scheduled publish (6 gates; NOT published)")
     p_sched.add_argument("id")
     p_sched.set_defaults(func=cmd_schedule)
+
+    p_rec = sub.add_parser("reconcile", help="find/clear orphaned gated actions (no backing draft)")
+    p_rec.add_argument("--apply", action="store_true", help="reject the orphaned actions (reversible)")
+    p_rec.set_defaults(func=cmd_reconcile)
 
     return parser
 

@@ -117,13 +117,25 @@ class DashboardData:
 
     def approvals(self) -> dict:
         d = self.dash.assemble_data()
-        return {"content": d["pending_approvals"]["content"], "actions": d["pending_approvals"]["actions"]}
+        # Cross-check gated actions against real draft/review records; flag orphans (needs-repair).
+        try:
+            from review.reconcile import audit_actions
+            actions = audit_actions(review_store=self.dash.review_store)
+        except Exception:
+            actions = d["pending_approvals"]["actions"]
+        return {"content": d["pending_approvals"]["content"], "actions": actions,
+                "orphaned": sum(1 for a in actions if a.get("orphaned"))}
 
     def pipeline(self) -> dict:
         from review.models import (STATUS_OWNER_APPROVED, STATUS_PUBLISHED, STATUS_READY, STATUS_REJECTED,
                                     STATUS_REVISION, STATUS_SCHEDULED)
         rs = self.dash.review_store
-        sched = self.dash.scheduler_store
+        pending_actions = len(self.dash.approval_queue.list(status="pending"))
+        try:
+            from review.reconcile import find_orphaned
+            orphaned = len(find_orphaned(review_store=rs))
+        except Exception:
+            orphaned = 0
         return {"stages": [
             {"stage": "Idea / Researching", "count": "—", "note": "tasks are synchronous; see journal"},
             {"stage": "Drafting → Waiting approval", "count": len(rs.list(status=STATUS_READY))},
@@ -132,7 +144,10 @@ class DashboardData:
             {"stage": "Scheduled", "count": len(rs.list(status=STATUS_SCHEDULED))},
             {"stage": "Rejected", "count": len(rs.list(status=STATUS_REJECTED, include_archived=True))},
             {"stage": "Published", "count": len(rs.list(status=STATUS_PUBLISHED)), "note": "explicit publisher only"},
-        ]}
+        ], "gated_actions_pending": pending_actions, "gated_actions_orphaned": orphaned,
+            "note": ("Gated actions live in the Approvals tab (separate from content drafts). "
+                     + (f"{orphaned} orphaned action(s) need repair: run `python -m review reconcile --apply`."
+                        if orphaned else "No orphaned actions."))}
 
     def video(self) -> dict:
         # Rendered by dashboard.studio.overview_html() (Creative Studio V1b); data handled there.

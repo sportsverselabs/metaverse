@@ -8,13 +8,66 @@ subprocess), so tests run offline. Renders write to a LOCAL file only — nothin
 
 from __future__ import annotations
 
+import os
 import shutil
+from pathlib import Path
 from typing import Callable, Optional
 
+from core.logging_setup import get_logger
 from creative.providers.base import RenderResult, VideoEditorProvider
+
+_log = get_logger("creative.ffmpeg")
 
 # runner(argv) -> (returncode, stderr_text)
 Runner = Callable[[list], "tuple[int, str]"]
+
+# stderr lines that are just the banner/build info, not the real error.
+_BANNER_PREFIXES = ("ffmpeg version", "built with", "configuration:", "lib", "  ", "Input #",
+                    "Stream #", "Metadata:", "Duration:", "  built")
+
+
+def preflight(spec: dict) -> list[str]:
+    """Return a list of human-readable problems BEFORE running ffmpeg (empty = ok to run)."""
+    problems = []
+    inputs = spec.get("inputs") or []
+    if not inputs:
+        problems.append("no clips to render — add at least one video clip.")
+    for i, inp in enumerate(inputs):
+        path = str(inp.get("path") or "").strip()
+        if not path:
+            problems.append(f"clip {i + 1} has no source file path.")
+            continue
+        p = Path(path)
+        if not p.exists():
+            problems.append(f"input file not found: {path}")
+        elif not p.is_file():
+            problems.append(f"input is not a file: {path}")
+        else:
+            start = float(inp.get("in", 0) or 0)
+            end = inp.get("out")
+            if end is not None and float(end) <= start:
+                problems.append(f"clip {i + 1} trim is invalid (out {end} <= in {start}).")
+    srt = spec.get("captions_srt")
+    if srt and not Path(str(srt)).is_file():
+        problems.append(f"caption file not found: {srt}")
+    out = str(spec.get("output") or "").strip()
+    if not out:
+        problems.append("no output path set.")
+    else:
+        parent = Path(out).parent
+        if not parent.exists():
+            problems.append(f"output folder does not exist: {parent}")
+        elif not os.access(parent, os.W_OK):
+            problems.append(f"output folder is not writable: {parent}")
+    return problems
+
+
+def _error_summary(stderr: str) -> str:
+    """Pull the meaningful error out of ffmpeg stderr (the real error is at the END, past the banner)."""
+    lines = [ln.rstrip() for ln in (stderr or "").splitlines() if ln.strip()]
+    meaningful = [ln for ln in lines if not ln.startswith(_BANNER_PREFIXES)]
+    tail = meaningful[-4:] if meaningful else lines[-2:]
+    return " | ".join(tail)[-300:] if tail else "no ffmpeg output"
 
 
 def build_ffmpeg_command(spec: dict) -> list:
@@ -88,14 +141,22 @@ class FfmpegVideoEditor(VideoEditorProvider):
 
         runner = self._runner
         if runner is None:
+            # Real render: validate BEFORE invoking ffmpeg so failures are clear, not "exit 254".
             if shutil.which("ffmpeg") is None:
                 return RenderResult(False, reason="ffmpeg not installed (apt install ffmpeg)", command=cmd)
+            problems = preflight(spec)
+            if problems:
+                _log.warning("Render preflight failed: %s | cmd: %s", "; ".join(problems), " ".join(cmd))
+                return RenderResult(False, reason="cannot render — " + "; ".join(problems), command=cmd)
             runner = _subprocess_runner
 
         try:
             rc, err = runner(cmd)
         except Exception as exc:  # never raise into the studio
+            _log.error("Render runner crashed: %s | cmd: %s", exc, " ".join(cmd))
             return RenderResult(False, reason=f"render failed: {type(exc).__name__}", command=cmd)
         if rc != 0:
-            return RenderResult(False, reason=f"ffmpeg exited {rc}: {err.strip()[:200]}", command=cmd)
+            # Full technical detail to the server log (no secrets in an ffmpeg command); safe summary to the UI.
+            _log.error("ffmpeg exit %s\ncmd: %s\nstderr:\n%s", rc, " ".join(cmd), err)
+            return RenderResult(False, reason=f"ffmpeg error: {_error_summary(err)}", command=cmd)
         return RenderResult(True, output_path=spec["output"], command=cmd)

@@ -222,17 +222,36 @@ def _approval_row(i):
             f"</div></div>")
 
 
+def _action_row(a):
+    if a.get("orphaned"):
+        tag = " <span style='color:#e0a000'>⚠ orphaned — needs repair</span>"
+        meta = (f"<div class=meta>task {_esc(a.get('task_id') or '—')} · {_esc(a.get('reason',''))} · "
+                f"no content to approve; run <code>python -m review reconcile --apply</code></div>")
+    else:
+        tag = ""
+        meta = f"<div class=meta>task {_esc(a.get('task_id') or '—')} · linked to a draft</div>"
+    return f"<div class=row><h4>{_esc(a['action'])} — {_esc(a['id'])}{tag}</h4>{meta}</div>"
+
+
 def _r_approvals(s):
     content = "".join(_approval_row(i) for i in s["content"]) or "<p class=muted>No content awaiting approval.</p>"
-    actions = "".join(f"<div class=row><h4>{_esc(a['action'])} — {_esc(a['id'])}</h4></div>" for a in s["actions"]) or "<p class=muted>No gated actions pending.</p>"
+    actions = "".join(_action_row(a) for a in s["actions"]) or "<p class=muted>No gated actions pending.</p>"
+    orphan_note = ""
+    if s.get("orphaned"):
+        orphan_note = (f"<div class=note>⚠ {s['orphaned']} gated action(s) are <b>orphaned</b> (no backing "
+                       f"draft). They are safe to clear: <code>python -m review reconcile --apply</code>.</div>")
     return (f"<h2>Approvals</h2><p class=muted>Approve / request edits / reject. \"Approve for scheduling\" asks for confirmation and still does NOT publish.</p>"
             f"<h3 style='margin:14px 0 10px'>Content</h3>{content}"
-            f"<h3 style='margin:22px 0 10px'>Gated actions</h3>{actions}")
+            f"<h3 style='margin:22px 0 10px'>Gated actions</h3>{orphan_note}{actions}")
 
 
 def _r_pipeline(s):
     rows = "".join(f"<div class=st><span>{_esc(x['stage'])}</span><span>{_esc(x.get('count'))}{(' · '+x['note']) if x.get('note') else ''}</span></div>" for x in s["stages"])
-    return f"<h2>Content Pipeline</h2><p class=muted>Stages of content moving through the system.</p>{rows}"
+    foot = (f"<div class=st><span>Gated actions pending (in Approvals)</span>"
+            f"<span>{_esc(s.get('gated_actions_pending', 0))}"
+            f"{' · '+str(s['gated_actions_orphaned'])+' orphaned' if s.get('gated_actions_orphaned') else ''}</span></div>")
+    note = f"<div class=note>{_esc(s.get('note',''))}</div>" if s.get("note") else ""
+    return f"<h2>Content Pipeline</h2><p class=muted>Stages of content moving through the system.</p>{rows}{foot}{note}"
 
 
 def _r_video(s):

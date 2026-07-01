@@ -161,9 +161,25 @@ def editor_html(project_id: str) -> str:
                   if can_submit else
                   "<span class=muted>Render a draft and pass compliance to enable Submit.</span>")
 
+    # Debug status: engine availability + actual files on disk + statuses.
+    caps = _capabilities()
+    render_file = next((Path(r["path"]).name for r in reversed(p.renders)
+                        if (store.root / pid / Path(r["path"]).name).is_file()), None)
+    thumb_ok = bool((p.thumbnail or {}).get("path")) and (store.root / pid / "thumbnail.png").is_file()
+    inputs_ok = all((not c.src.startswith("assets/")) or (store.root / pid / c.src).is_file() or Path(c.src).is_file()
+                    for c in p.clips) if p.clips else False
+    status_html = (
+        f"<div class=note><b>Files &amp; status</b> — "
+        f"engine: {'ffmpeg ✓' if caps['ffmpeg'] else 'ffmpeg ✗'} / {'Pillow ✓' if caps['pillow'] else 'Pillow ✗'} · "
+        f"clips: {len(p.clips)} ({'inputs present' if inputs_ok else 'MISSING input file(s) — render will fail'}) · "
+        f"render: {_esc(render_file) if render_file else 'none yet'} · "
+        f"thumbnail: {'thumbnail.png ✓' if thumb_ok else 'none yet'} · status: {_esc(p.status)} "
+        f"<button class=btnsm onclick=\"openStudio('{_esc(pid)}')\">Refresh status</button></div>")
+
     return (
         f"<h2>Studio — {_esc(p.title)}</h2>"
         f"<button class=btnsm onclick=\"go('video')\">← Back to projects</button>"
+        f"{status_html}"
         f"<h3 style='margin:16px 0 10px'>Preview</h3>{preview}"
         f"<div style='margin-top:14px'>"
         f"<button class=btnsm onclick=\"studioAction('render')\">Render draft</button> "
@@ -185,12 +201,32 @@ def editor_html(project_id: str) -> str:
 # ----------------------------------------------------------------------- #
 # Actions
 # ----------------------------------------------------------------------- #
+def _generate_sample_clip(path: Path, *, label: str = "Sportsverse", seconds: int = 5) -> Optional[Path]:
+    """Best-effort real sample clip (color + silent audio) via ffmpeg lavfi, so a demo can actually render."""
+    import shutil
+    import subprocess
+    if shutil.which("ffmpeg") is None:
+        return None
+    path.parent.mkdir(parents=True, exist_ok=True)
+    base = ["ffmpeg", "-y", "-f", "lavfi", "-i", f"color=c=0x0b1220:s=1280x720:d={seconds}",
+            "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo", "-t", str(seconds),
+            "-pix_fmt", "yuv420p", "-c:v", "libx264", "-c:a", "aac", "-shortest", str(path)]
+    try:
+        r = subprocess.run(base, capture_output=True, text=True, timeout=60)
+        return path if r.returncode == 0 and path.is_file() else None
+    except Exception:
+        return None
+
+
 def _make_demo(store: VideoProjectStore) -> VideoProject:
     p = VideoProject(title="New Video Project", description="Created in the dashboard.")
-    p.clips = [Clip(src="assets/clip1.mp4", in_=0.0, out=5.0, order=0,
+    clip = _generate_sample_clip(store.assets_dir(p.id) / "clip1.mp4")
+    src = str(clip) if clip else "assets/clip1.mp4"
+    p.clips = [Clip(src=src, in_=0.0, out=5.0, order=0,
                     captions=[Caption(0.0, 3.0, "Edit this caption")])]
     p.thumbnail = {"template": "sports_basic", "fields": {"title": "SPORTSVERSE", "subtitle": "Draft"}}
-    p.add_edit("owner", "created project in dashboard")
+    note = "created project in dashboard" if clip else "created project (no ffmpeg: add real media before rendering)"
+    p.add_edit("owner", note)
     store.save(p)
     return p
 
@@ -281,10 +317,11 @@ def studio_action(body: dict, *, actor: str = "owner") -> dict:
             return {"error": "Pillow not installed on the server (pip install Pillow)."}
         tpl = (p.thumbnail or {}).get("template", "sports_basic")
         fields = (p.thumbnail or {}).get("fields") or {"title": p.title}
-        out = str(store.assets_dir(pid) / "thumbnail.png")
+        # Save at the PROJECT ROOT (not assets/) so the preview + media route find it by filename.
+        out = str(store.root / pid / "thumbnail.png")
         res = prov.generate(tpl, fields, out)
-        if not res.ok:
-            return {"error": res.reason}
+        if not res.ok or not Path(out).is_file():
+            return {"error": res.reason or "thumbnail file was not created"}
         p.thumbnail = {"template": tpl, "fields": fields, "path": res.output_path}
         p.add_edit(actor, "generated thumbnail", after=res.output_path)
         store.save(p)

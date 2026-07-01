@@ -78,9 +78,10 @@ def test_ffmpeg_editor_with_injected_runner():
 
 
 def test_ffmpeg_editor_reports_failure():
-    ed = FfmpegVideoEditor(runner=lambda argv: (1, "boom"))
+    ed = FfmpegVideoEditor(runner=lambda argv: (1, "boom: No such file or directory"))
     res = ed.render(build_render_spec(_project(), "out.mp4"))
-    assert not res.ok and "ffmpeg exited 1" in res.reason
+    # New behavior: surface the real stderr (not just the exit code) as a readable summary.
+    assert not res.ok and "No such file or directory" in res.reason
 
 
 # ---- captions -------------------------------------------------------- #
