@@ -289,8 +289,19 @@ def _r_publishing(s):
                 f"<div class=meta>{_esc(i['status'])}</div>"
                 f"<div class=publish-actions>{''.join(buttons)}</div>{hint_html}</div>")
     items = "".join(item_row(i) for i in s.get("publishable", [])) or "<p class=muted>No approved or scheduled items ready to publish.</p>"
+    def history_row(h):
+        state = "ok" if h.get("ok") else "warn"
+        target = _esc(h.get("url") or h.get("post_id") or h.get("reason") or "")
+        if h.get("url"):
+            target = f"<a href='{_esc(h['url'])}' target=_blank rel=noopener>{_esc(h['url'])}</a>"
+        return (f"<div class='status-row {state}'><div>"
+                f"<div class=status-title>{_esc(h.get('platform','unknown'))} - {_esc(h.get('review_id',''))}</div>"
+                f"<div class=status-detail>{_esc(h.get('ts',''))} · visibility {_esc(h.get('visibility',''))} · {target}</div></div>"
+                f"<span class=status-pill><span class='dot {state}'></span>{_esc(h.get('status',''))}</span></div>")
+    history = "".join(history_row(h) for h in s.get("history", [])) or "<p class=muted>No publish attempts recorded on this server.</p>"
     return (f"<h2>Publishing</h2><div class=note>{_esc(s['note'])}</div>{rows}"
-            f"<h3 style='margin:22px 0 10px'>Ready to publish</h3>{items}")
+            f"<h3 style='margin:22px 0 10px'>Ready to publish</h3>{items}"
+            f"<h3 style='margin:22px 0 10px'>Publishing History</h3>{history}")
 
 
 def _r_analytics(s):

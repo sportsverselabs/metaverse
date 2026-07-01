@@ -81,9 +81,16 @@ def test_publishing_section_shows_youtube_connected_and_pending_platforms():
              "button": "Instagram test", "enabled": False, "note": "Pending."},
         ],
         "publishable": [{"id": "rv1", "skill": "video_project", "status": "owner_approved"}],
+        "history": [
+            {"ts": "2026-07-01T00:00:00", "review_id": "rv-old", "platform": "youtube",
+             "ok": True, "status": "published", "url": "https://youtu.be/example",
+             "visibility": "private", "reason": "published"}
+        ],
     })
     assert "Private uploads enabled for Platinum Clips." in frag
     assert "dashPublish('rv1','youtube','private')" in frag
     assert "TikTok draft pending" in frag
     assert "Instagram test pending" in frag
     assert frag.count("disabled") >= 2
+    assert "Publishing History" in frag
+    assert "https://youtu.be/example" in frag

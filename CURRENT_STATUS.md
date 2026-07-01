@@ -5,7 +5,7 @@
 
 | Field | Value |
 |---|---|
-| Last updated | 2026-06-28 |
+| Last updated | 2026-07-01 |
 | Updated by | Coding Agent (Codex) |
 
 ---
@@ -29,6 +29,10 @@ The system is **deployed and operating in production** on the Hostinger VPS.
 ---
 
 ## Current Development Phase
+**Current snapshot (2026-07-01): Phase 5 YouTube is live behind gates; Phase 6 Creative Studio is deployed but needs prompt-to-render wiring.**
+YouTube OAuth is configured for **PlatinumClips** private uploads. Instagram and TikTok remain pending
+owner/app setup. There is still no autonomous publishing.
+
 **Phase 5 (publishing) code complete behind gates; Phase 6 (Creative Studio) planned next.**
 The real publisher service + YouTube/IG/TikTok adapters exist behind owner approval (missing creds
 return "not configured"; no autonomous publishing). `python -m pytest` → **184 passing**.
@@ -60,8 +64,24 @@ remaining departments (Creative/Marketing/Community/Commerce/Tech-Scout, Knowled
 Knowledge Library in `AGENT_DIRECTORY`, (3) **Whisper auto-captions** (`creative/providers/whisper_captions.py`
 + studio `auto_caption`), (4) **Studio→YouTube bridge** (`PublishingService._post_from_item` attaches the
 rendered video + title to a `video_project` review item). **FFmpeg.wasm + Remotion deferred** (heavy deps).
-`python -m pytest` → **184 passing**. **YouTube upload itself is still BLOCKED on owner credentials**
-(OAuth `client_secret.json` + refresh token — see docs/PHASE5_SETUP.md §2); the path is wired and ready.
+`python -m pytest` -> **184 passing**. YouTube credentials are now configured; Instagram/TikTok remain pending setup.
+
+**2026-07-01 - live dashboard workflow QA + fixes.**
+- YouTube OAuth is configured and verified against the correct **PlatinumClips** channel.
+- Live private uploads already verified in YouTube Studio: `qmEb-5n3Ai8` (local verification) and
+  `sGQ-azXJRrw` (VPS verification). No new upload was created during this QA pass.
+- Fixed Ask Hermes draft-only routing: "do not publish" no longer creates orphaned `publish_content`
+  actions. Content drafts, including compliance-warning drafts, enter the Review queue instead of
+  standalone action approvals.
+- Installed `python3-pil` on the VPS and tracked `Pillow>=10.0` in requirements. Creative Studio smoke on
+  the VPS passes: demo -> render -> thumbnail -> previews -> no orphaned actions -> nothing published.
+- Added Publishing History UI backed by the append-only server publish log.
+- Browser QA prompt created review item `rv-2026-07-01-28494590` (`ready_for_owner_review`, published=False).
+  It used live sports data context and did not publish.
+- Remaining product gap: Hermes creates a review text draft, not a renderable Creative Studio video project.
+  Existing soccer Studio project `vproj-20260630-3b406d28` has a thumbnail but cannot render because
+  `assets/clip1.mp4` is missing. A UI-created demo project `vproj-20260701-bb653a7e` renders, but the
+  output is generic dark background + caption, not a soccer highlight-style video.
 
 ## Current Working Module
 `publishing/` adapters/service, `agents/social_publishing_agent.py`, `dashboard/{data,server,app}.py`, and `review/models.py`.
@@ -84,21 +104,32 @@ rendered video + title to a `video_project` review item). **FFmpeg.wasm + Remoti
 ## Broken Files
 None.
 
-## Known Bugs
-None. (Fixed a Windows-console UTF-8 print issue in the Jarvis CLI.)
+## Known Bugs / Gaps
+- Ask Hermes -> Approvals works for text/video-draft copy, but does **not** create a renderable Creative Studio project.
+- Creative Studio can render projects with present media, but older project `vproj-20260630-3b406d28`
+  has missing media (`assets/clip1.mp4`) and fails preflight clearly.
+- The successful local YouTube verification upload exists in YouTube Studio and local publish log; the VPS
+  publish log originally only had the VPS verification record. Publishing History now exists, but old local
+  verification records may need an explicit backfill/import if the dashboard should show them.
 
 ## Current Blockers
-None.
+No deployment blockers. Product blocker: real prompt-matched video creation needs a safe media/source
+pipeline and Hermes -> Creative Studio project wiring.
 
 ## API Keys Needed
-YouTube OAuth (`YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN`), Instagram Graph (`IG_ACCESS_TOKEN`, `IG_BUSINESS_ID`), and TikTok (`TIKTOK_ACCESS_TOKEN`) are still needed for live platform posting. DeepSeek, Telegram, email, and sports keys are already handled on the VPS.
+Instagram Graph (`IG_ACCESS_TOKEN`, `IG_BUSINESS_ID`) and TikTok (`TIKTOK_ACCESS_TOKEN`) are still needed
+for live platform workflows. YouTube OAuth, DeepSeek, Telegram, email, and sports keys are handled on the VPS.
 
 ## Owner Actions Needed
-Provide the YouTube OAuth credentials first if YouTube private uploads should go live. Keep Instagram public publishing disabled until the owner has a test-account/app-review path and explicitly enables `IG_ALLOW_PUBLIC_PUBLISH=true`.
+Do not approve public publishing yet. Instagram/TikTok setup remains pending. For Creative Studio, decide
+whether Sportsverse should use generated/licensed soccer-safe visuals, owner-uploaded clips, or
+template-only commentary videos for the next renderable-video version.
 
 ## Last Successful Test
-`2026-06-28` - `python -m pytest` -> **131 passed** (exit 0).
-Targeted Phase 5 check: `python -m pytest tests/test_publishing.py tests/test_phase5_ops.py tests/test_dashboard_ui.py tests/test_review.py tests/test_gates.py tests/test_phase5_agents.py` -> **39 passed**.
+`2026-07-01` - focused local suite:
+`python -m pytest tests/test_phase4_approval.py tests/test_phase4_graph.py tests/test_dashboard_workflow.py tests/test_dashboard_ui.py tests/test_publishing.py -q` -> **39 passed**.
+VPS smoke: `python3 scripts/smoke_studio.py` -> **ALL PASS**.
 
 ## Next Coding Task
-Add real owner credentials to `.env`, perform the one-time YouTube OAuth refresh-token flow, then run the first dashboard-triggered YouTube upload in private mode.
+Wire Hermes video prompts into Creative Studio projects with safe source media, then render a prompt-matched
+30-second soccer draft in-dashboard. Keep Publishing gated; do not auto-upload.

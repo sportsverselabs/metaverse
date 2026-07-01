@@ -160,6 +160,34 @@ def test_service_publishes_owner_approved_review_item(tmp_path):
     assert alerts and "Published" in alerts[0]
 
 
+def test_service_history_reads_recent_publish_log(tmp_path):
+    log = tmp_path / "publish.jsonl"
+    log.write_text(
+        "\n".join([
+            json.dumps({"ts": "2026-01-02T00:00:00", "review_id": "rv1", "platform": "youtube",
+                        "ok": True, "post_id": "yt1", "url": "https://youtu.be/yt1",
+                        "reason": "published", "visibility": "private", "dry_run": False}),
+            json.dumps({"ts": "2026-01-01T00:00:00", "review_id": "old", "platform": "youtube",
+                        "ok": False, "reason": "failed", "visibility": "private"}),
+        ]),
+        encoding="utf-8",
+    )
+    service = PublishingService(config=FakeConfig(), publishers={}, posts_log=log, alert=None)
+    rows = service.history(limit=1)
+    assert rows == [{
+        "ts": "2026-01-02T00:00:00",
+        "review_id": "rv1",
+        "platform": "youtube",
+        "ok": True,
+        "status": "published",
+        "post_id": "yt1",
+        "url": "https://youtu.be/yt1",
+        "reason": "published",
+        "visibility": "private",
+        "dry_run": False,
+    }]
+
+
 def test_tiktok_refreshes_access_token_when_only_refresh_credentials_exist():
     calls = []
 

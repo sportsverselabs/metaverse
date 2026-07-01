@@ -216,6 +216,7 @@ class DashboardData:
             {"id": i.id, "skill": i.skill, "status": i.status}
             for i in publishable
         ], "publish_targets": publish_targets,
+            "history": self.publishing_service.history(limit=10),
             "note": "Publishing is live-gated. YouTube is connected for private uploads; Instagram and TikTok stay pending until their owner setup is complete."}
 
     def analytics(self) -> dict:

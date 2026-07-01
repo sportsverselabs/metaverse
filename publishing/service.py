@@ -63,6 +63,34 @@ class PublishingService:
             })
         return out
 
+    def history(self, *, limit: int = 10) -> list[dict]:
+        """Return recent publish attempts from the append-only publish log."""
+        if not self.posts_log.is_file():
+            return []
+        rows: list[dict] = []
+        try:
+            for line in self.posts_log.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                rec = json.loads(line)
+                rows.append({
+                    "ts": rec.get("ts", ""),
+                    "review_id": rec.get("review_id", ""),
+                    "platform": rec.get("platform", ""),
+                    "ok": bool(rec.get("ok")),
+                    "status": "published" if rec.get("ok") else "failed",
+                    "post_id": rec.get("post_id", ""),
+                    "url": rec.get("url", ""),
+                    "reason": rec.get("reason", ""),
+                    "visibility": rec.get("visibility", ""),
+                    "dry_run": bool(rec.get("dry_run")),
+                })
+        except (OSError, json.JSONDecodeError):
+            return []
+        rows.sort(key=lambda r: r.get("ts", ""), reverse=True)
+        return rows[:limit]
+
     def publish(self, post: dict, *, platform: str = "", approved: bool = False,
                 visibility: str = "private") -> PublishResult:
         platform = (platform or post.get("platform") or "").strip().lower()

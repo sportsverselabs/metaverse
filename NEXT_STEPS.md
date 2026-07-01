@@ -2,9 +2,30 @@
 
 > Direct instructions for the **next coding agent**.
 > Read `PROJECT_DNA.md` and `CURRENT_STATUS.md` first, then do these in order.
-> Last updated: 2026-06-28
+> Last updated: 2026-07-01
 
 ---
+
+## Where we are now (2026-07-01)
+YouTube private publishing is configured and verified for PlatinumClips, but still owner-gated.
+Instagram and TikTok remain pending setup. Creative Studio can render/thumbnail projects when media exists,
+and the VPS smoke passes. The current live browser QA found the next real gap: Ask Hermes creates a review
+text draft, not a renderable Creative Studio video project. The rendered demo video is technically valid
+but generic, not soccer highlight-style.
+
+## Do These Next (current order)
+
+1. **Wire Hermes video prompts into Creative Studio projects.** For video-draft prompts, create a
+   `VideoProject`, carry title/description/captions/thumbnail idea into the Studio record, and link the
+   Review item back to the project id.
+2. **Add a safe soccer visual source path.** Use generated/licensed/owner-uploaded clips or a template-only
+   commentary format. Do not use broadcast footage unless the owner supplies rights/permission.
+3. **Render a prompt-matched 30-second draft in-dashboard.** Verify thumbnail preview, video preview,
+   captions, pacing, compliance report, pipeline counts, Publishing status, and no publish.
+4. **Backfill/import publish history if desired.** YouTube Studio shows two private verification uploads;
+   the VPS log originally recorded only the VPS upload. The Publishing History panel now exists and reads
+   server log records.
+5. **Keep Instagram/TikTok setup parked** until owner app approval/OAuth setup resumes.
 
 ## Where we are (2026-06-28)
 Phases 0–4 complete; Phase 5 (publishing) **code complete behind gates**; **deployed live** on the VPS.

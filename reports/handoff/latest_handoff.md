@@ -6,6 +6,56 @@
 
 ---
 
+## Session: 2026-07-01 (l) - Live dashboard E2E QA: Hermes, Studio, Pipeline, Publishing, YouTube
+
+**Agent:** Codex. **Goal:** browser-automate the real Sportsverse dashboard and verify whether a soccer
+video prompt can become a rendered draft, thumbnail, approval item, publishing record, and matching YouTube
+content. **Safety:** no publish/delete actions were performed.
+
+### Browser flow performed
+- Opened `https://dashboard.sportsversenews.com/dashboard` and used the live owner session.
+- Ask Hermes prompt used exactly:
+  `Create a 30 second soccer highlight-style video draft about the top soccer moments this week. Include title, description, captions, thumbnail idea, and make it ready for owner review. Do not publish.`
+- Initial run exposed a bug: "do not publish" was detected as publish intent and created orphaned
+  `publish_content` action `ap-2026-07-01-eecd03eb`.
+- Fix deployed: negation-aware gated-action detection + compliance-warning content drafts now enter the
+  Review queue instead of a standalone publish action. Orphan was safely reconciled/rejected; no deletion.
+- Re-ran the browser prompt. New draft queued as `rv-2026-07-01-28494590`, status
+  `ready_for_owner_review`, `published=False`, risk 0, no gated actions pending.
+- Approvals showed the review item. Pipeline showed Drafting/Waiting approval = 1, gated actions = 0,
+  Published = 0. Publishing showed YouTube connected, TikTok/Instagram pending, no ready-to-publish items.
+
+### Creative Studio / render / thumbnail findings
+- Existing soccer project `vproj-20260630-3b406d28` ("Best Soccer Moments Just Dropped") has missing media:
+  `assets/clip1.mp4`. Thumbnail generation now works and preview loads (`thumbnail.png`, 1280x720).
+  Render fails safely with preflight: `input file not found: assets/clip1.mp4`; full command is logged.
+- Installed `python3-pil` on the VPS and added `Pillow>=10.0` to `requirements.txt`.
+- Browser-created demo project `vproj-20260701-bb653a7e` generated a thumbnail and rendered successfully:
+  video preview `/dashboard/studio/media?project=vproj-20260701-bb653a7e&file=render_draft.mp4`, 5s,
+  1280x720, audio stream present, compliance passed. Visual QA frame is generic dark background with
+  caption "Edit this caption" - technically valid, but **not** soccer highlight-style content.
+
+### Publishing / YouTube findings
+- Added Publishing History UI backed by `PublishingService.history()` and the server `reports/posts/publish_log.jsonl`.
+- YouTube Studio channel is **PlatinumClips**. It shows two private Sportsverse verification uploads:
+  `sGQ-azXJRrw` (VPS log has this) and `qmEb-5n3Ai8` (local verification log has this). No new upload
+  was created during this QA.
+- Remaining mismatch: the VPS publish log originally had only the VPS verification upload. Backfill/import
+  old local verification records if the dashboard should show every historical Sportsverse upload.
+
+### Tests / deploy
+- Local focused tests: `python -m pytest tests/test_phase4_approval.py tests/test_phase4_graph.py tests/test_dashboard_workflow.py tests/test_dashboard_ui.py tests/test_publishing.py -q` -> **39 passed**.
+- Compile checks passed for patched modules.
+- VPS smoke: `python3 scripts/smoke_studio.py` -> **ALL PASS**.
+- Deployed commits through `main`; dashboard and nginx active.
+
+### Next recommended step
+Build Hermes -> Creative Studio project wiring for video prompts, then add a safe soccer visual source
+(generated/licensed/owner-uploaded/template-only) so a 30-second soccer draft can actually render and
+match the prompt. Keep all publishing gated; do not auto-upload.
+
+---
+
 ## Session: 2026-07-01 (k) — Dashboard workflow debug: render / thumbnail / pipeline-approval
 
 **Agent:** Claude Code (Opus 4.8). **Goal:** fix owner-reported Creative Studio + Approvals issues.
