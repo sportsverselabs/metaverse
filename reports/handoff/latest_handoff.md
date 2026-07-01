@@ -38,10 +38,9 @@ content. **Safety:** no publish/delete actions were performed.
 ### Publishing / YouTube findings
 - Added Publishing History UI backed by `PublishingService.history()` and the server `reports/posts/publish_log.jsonl`.
 - YouTube Studio channel is **PlatinumClips**. It shows two private Sportsverse verification uploads:
-  `sGQ-azXJRrw` (VPS log has this) and `qmEb-5n3Ai8` (local verification log has this). No new upload
-  was created during this QA.
-- Remaining mismatch: the VPS publish log originally had only the VPS verification upload. Backfill/import
-  old local verification records if the dashboard should show every historical Sportsverse upload.
+  `sGQ-azXJRrw` and `qmEb-5n3Ai8`. No new upload was created during this QA.
+- Backfilled the local verification record (`qmEb-5n3Ai8`) into the VPS publish log. Publishing History now
+  shows both private verification uploads, matching YouTube Studio.
 
 ### Tests / deploy
 - Local focused tests: `python -m pytest tests/test_phase4_approval.py tests/test_phase4_graph.py tests/test_dashboard_workflow.py tests/test_dashboard_ui.py tests/test_publishing.py -q` -> **39 passed**.

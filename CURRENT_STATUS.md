@@ -108,9 +108,8 @@ None.
 - Ask Hermes -> Approvals works for text/video-draft copy, but does **not** create a renderable Creative Studio project.
 - Creative Studio can render projects with present media, but older project `vproj-20260630-3b406d28`
   has missing media (`assets/clip1.mp4`) and fails preflight clearly.
-- The successful local YouTube verification upload exists in YouTube Studio and local publish log; the VPS
-  publish log originally only had the VPS verification record. Publishing History now exists, but old local
-  verification records may need an explicit backfill/import if the dashboard should show them.
+- Publishing History now shows both private YouTube verification uploads after backfilling the local
+  verification record into the VPS publish log.
 
 ## Current Blockers
 No deployment blockers. Product blocker: real prompt-matched video creation needs a safe media/source

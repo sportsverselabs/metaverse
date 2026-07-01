@@ -22,9 +22,8 @@ but generic, not soccer highlight-style.
    commentary format. Do not use broadcast footage unless the owner supplies rights/permission.
 3. **Render a prompt-matched 30-second draft in-dashboard.** Verify thumbnail preview, video preview,
    captions, pacing, compliance report, pipeline counts, Publishing status, and no publish.
-4. **Backfill/import publish history if desired.** YouTube Studio shows two private verification uploads;
-   the VPS log originally recorded only the VPS upload. The Publishing History panel now exists and reads
-   server log records.
+4. **Keep publish history honest.** YouTube Studio shows two private verification uploads and the VPS
+   Publishing History panel now shows both after backfill. Future uploads should be logged by the VPS path.
 5. **Keep Instagram/TikTok setup parked** until owner app approval/OAuth setup resumes.
 
 ## Where we are (2026-06-28)
