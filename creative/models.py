@@ -36,6 +36,13 @@ class Caption:
         return {"start": self.start, "end": self.end, "text": self.text}
 
 
+# Media provenance (license safety): where a clip's visuals came from.
+SOURCE_GENERATED = "generated"      # Sportsverse-generated visuals (safe placeholder; CC0-equivalent)
+SOURCE_OWNER_UPLOAD = "owner_upload"  # footage the owner provided (owner asserts the right to use it)
+SOURCE_LICENSED = "licensed"        # clearly-licensed stock (license_url required)
+_SAFE_SOURCES = {SOURCE_GENERATED, SOURCE_OWNER_UPLOAD, SOURCE_LICENSED}
+
+
 @dataclass
 class Clip:
     src: str                              # path to source media
@@ -44,21 +51,36 @@ class Clip:
     out: float | None = None              # trim end (seconds); None = to end
     order: int = 0
     captions: list[Caption] = field(default_factory=list)
+    # Provenance: {source_kind, license, license_url, role, note}. Empty = unknown (treated as unsafe).
+    meta: dict = field(default_factory=dict)
 
     @property
     def duration(self) -> float | None:
         return None if self.out is None else max(0.0, self.out - self.in_)
 
+    @property
+    def source_kind(self) -> str:
+        return (self.meta or {}).get("source_kind", "")
+
+    @property
+    def license_safe(self) -> bool:
+        """True only if the clip's visuals are clearly safe to use (generated/owner/licensed)."""
+        kind = self.source_kind
+        if kind == SOURCE_LICENSED:
+            return bool((self.meta or {}).get("license_url"))
+        return kind in {SOURCE_GENERATED, SOURCE_OWNER_UPLOAD}
+
     def to_dict(self) -> dict:
         return {"id": self.id, "src": self.src, "in": self.in_, "out": self.out,
-                "order": self.order, "captions": [c.to_dict() for c in self.captions]}
+                "order": self.order, "captions": [c.to_dict() for c in self.captions], "meta": self.meta}
 
     @classmethod
     def from_dict(cls, d: dict) -> "Clip":
         return cls(src=d["src"], id=d.get("id") or _new_id("clip"), in_=float(d.get("in", 0.0)),
                    out=(None if d.get("out") is None else float(d["out"])),
                    order=int(d.get("order", 0)),
-                   captions=[Caption(**c) for c in d.get("captions", [])])
+                   captions=[Caption(**c) for c in d.get("captions", [])],
+                   meta=d.get("meta", {}) or {})
 
 
 @dataclass

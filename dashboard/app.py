@@ -160,6 +160,9 @@ def shell_page(user: str) -> str:
           if(j.message&&!j.error){{setTimeout(function(){{alert(j.message);}},50);}}
         }}).catch(function(){{alert('Studio action failed.');}});
     }};
+    window.studioPrompt=function(){{
+      var t=prompt('Describe the video (e.g. make me 3 soccer video highlights):','make me 3 soccer video highlights');
+      if(t){{studioAction('new_from_prompt',{{prompt:t}});}}}};
     window.studioReorder=function(cid,dir){{studioAction('reorder',{{clip:cid,dir:dir}});}};
     window.studioTrim=function(cid){{
       var i=document.getElementById('in_'+cid).value, o=document.getElementById('out_'+cid).value;

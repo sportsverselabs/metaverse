@@ -83,7 +83,11 @@ def overview_html() -> str:
     return (f"<h2>Creative Studio</h2>"
             f"<p class=muted>Preview, edit, and prepare draft videos in-dashboard. Renders are local "
             f"drafts only — nothing is published. {_esc(cap_note)}</p>"
+            f"<button class=btnsm onclick=\"studioPrompt()\">✦ New from prompt</button> "
             f"<button class=btnsm onclick=\"studioAction('demo')\">+ New demo project</button>"
+            f"<div class=note>\"New from prompt\" turns a request like <i>make me 3 soccer video "
+            f"highlights</i> into a ~30s draft from <b>safe Sportsverse-generated visuals</b> "
+            f"(no real match footage) — replace scenes with owner/licensed clips before publishing.</div>"
             f"<h3 style='margin:18px 0 10px'>Projects</h3>{listing}")
 
 
@@ -112,9 +116,13 @@ def editor_html(project_id: str) -> str:
     clip_rows = []
     for c in p.ordered_clips():
         cap_text = c.captions[0].text if c.captions else ""
+        kind = c.source_kind or "unknown"
+        prov = (f"<div class=meta>source: {_esc(kind)} "
+                f"{'✓ safe to use' if c.license_safe else '⚠ replace with owner/licensed footage before publishing'}"
+                f"{' · ' + _esc(c.meta.get('role')) if c.meta.get('role') else ''}</div>")
         clip_rows.append(
             f"<div class=row><h4>#{c.order} {_esc(Path(c.src).name)}</h4>"
-            f"<div class=meta>{_esc(c.src)}</div>"
+            f"<div class=meta>{_esc(c.src)}</div>{prov}"
             f"<div style='margin-top:8px'>"
             f"<button class=btnsm onclick=\"studioReorder('{_esc(c.id)}','up')\">▲</button> "
             f"<button class=btnsm onclick=\"studioReorder('{_esc(c.id)}','down')\">▼</button>"
@@ -185,7 +193,7 @@ def editor_html(project_id: str) -> str:
         f"<button class=btnsm onclick=\"studioAction('render')\">Render draft</button> "
         f"<button class=btnsm onclick=\"studioAction('thumbnail')\">Generate thumbnail</button></div>"
         f"<h3 style='margin:20px 0 10px'>Title &amp; description</h3>{meta_html}"
-        f"<h3 style='margin:20px 0 10px'>Clips</h3>{clips_html}"
+        f"<h3 style='margin:20px 0 10px'>Clips</h3>{_media_safety_banner(p)}{clips_html}"
         f"<h3 style='margin:20px 0 10px'>Thumbnail</h3>{thumb_html or '<p class=muted>No thumbnail yet.</p>'}"
         f"<h3 style='margin:20px 0 10px'>Compliance</h3>{comp_html}"
         f"<div style='margin-top:8px'><button class=btnsm onclick=\"studioAction('compliance')\">Run compliance check</button></div>"
@@ -238,6 +246,21 @@ def _f(val, default=None):
         return default
 
 
+def _media_safety_banner(p: VideoProject) -> str:
+    if not p.clips:
+        return ""
+    unsafe = [c for c in p.clips if not c.license_safe]
+    generated = [c for c in p.clips if c.source_kind == "generated"]
+    if unsafe:
+        return (f"<div class=note>⚠ {len(unsafe)} clip(s) have unclear licensing — replace with "
+                f"owner-uploaded or clearly-licensed footage before publishing.</div>")
+    if generated:
+        return ("<div class=note>ℹ Visuals are <b>Sportsverse-generated placeholders</b> (safe to use). "
+                "For real highlights, drop your own licensed clips into the project's assets folder and "
+                "attach them, or keep these as a storyboard. Nothing publishes without your approval.</div>")
+    return ""
+
+
 def studio_action(body: dict, *, actor: str = "owner") -> dict:
     store = _store()
     action = (body.get("action") or "").strip()
@@ -245,6 +268,21 @@ def studio_action(body: dict, *, actor: str = "owner") -> dict:
     if action == "demo":
         p = _make_demo(store)
         return {"message": "Demo project created.", "project": p.id}
+
+    if action == "new_from_prompt":
+        prompt = (body.get("prompt") or "").strip()
+        if not prompt:
+            return {"error": "Enter a prompt, e.g. 'make me 3 soccer video highlights'."}
+        from creative.storyboard import build_from_prompt
+        try:
+            p = build_from_prompt(prompt, store=store)
+        except Exception as exc:
+            return {"error": f"Could not build storyboard: {type(exc).__name__}"}
+        made = sum(1 for c in p.clips if Path(c.src).is_file())
+        note = "" if made == len(p.clips) else " (ffmpeg missing: scenes not rendered)"
+        return {"message": f"Built a {len(p.clips)}-scene storyboard from your prompt{note}. "
+                           f"Visuals are safe generated placeholders — render it, then replace with "
+                           f"owner/licensed footage before publishing.", "project": p.id}
 
     pid = (body.get("project") or "").strip()
     if not _ID_RE.match(pid):
@@ -395,6 +433,25 @@ def studio_action(body: dict, *, actor: str = "owner") -> dict:
         p.add_edit(actor, "owner rejected (draft; not published)")
         store.save(p)
         return {"message": "Project rejected.", "project": pid}
+
+    if action == "attach_media":
+        # Owner-uploaded footage: point a scene at a file the owner placed in the project's assets folder.
+        from creative.models import SOURCE_OWNER_UPLOAD
+        c = next((c for c in p.clips if c.id == body.get("clip")), None)
+        if not c:
+            return {"error": "clip not found"}
+        fname = (body.get("file") or "").strip()
+        if not _ID_RE.match(Path(fname).stem or "") or Path(fname).suffix.lower() not in _CONTENT_TYPES:
+            return {"error": "provide a filename you placed in the project's assets folder (e.g. myclip.mp4)"}
+        target = store.assets_dir(pid) / fname
+        if not target.is_file():
+            return {"error": f"file not found in the project assets folder: {fname}"}
+        c.src = str(target)
+        c.meta = {"source_kind": SOURCE_OWNER_UPLOAD, "license": "owner-provided",
+                  "role": c.meta.get("role", "clip"), "note": "owner asserts the right to use this footage"}
+        p.add_edit(actor, "attached owner-uploaded media", after=fname)
+        store.save(p)
+        return {"message": f"Attached {fname} (owner-provided) to the scene.", "project": pid}
 
     return {"error": "unknown studio action"}
 
