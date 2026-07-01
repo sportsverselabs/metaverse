@@ -17,6 +17,8 @@ def test_detect_gated_actions():
     assert "publish_content" in detect_gated_actions("please publish this draft")
     assert "public_post" in detect_gated_actions("post on tiktok now")
     assert "send_email" in detect_gated_actions("send email to subscribers")
+    assert detect_gated_actions("draft a YouTube short for owner review; do not publish") == []
+    assert detect_gated_actions("create an Instagram caption draft, not a public post") == []
     assert detect_gated_actions("just summarize this article") == []
 
 

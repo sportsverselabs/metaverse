@@ -2,6 +2,7 @@
 
 from orchestration.routes import run_fallback
 from orchestration.state import OrchestrationState
+from review.models import GATE_COMPLIANCE
 from review.store import ReviewStore
 from tests._phase4_helpers import make_ctx
 
@@ -80,6 +81,25 @@ def test_content_draft_is_queued_into_review_surface(tmp_path):
     assert state.review_id
     # It now appears in the Phase 2 owner-review queue (draft -> review -> schedule).
     assert any(i.id == state.review_id for i in review_store.list_pending())
+
+
+def test_draft_only_content_with_compliance_warning_goes_to_review_not_publish_action(tmp_path):
+    review_store = ReviewStore(base_dir=tmp_path / "review")
+    ctx = make_ctx(tmp_path, review_store=review_store)
+    state = OrchestrationState(
+        user_request="draft a YouTube soccer highlight video using official footage; do not publish"
+    )
+    run_fallback(state, ctx)
+
+    assert state.route == "content_agent"
+    assert state.gated_actions == []
+    assert state.approval_id == ""
+    assert ctx.approval_queue.list(status="pending") == []
+    assert state.final_status == "submitted_to_review"
+    item = review_store.get(state.review_id)
+    assert item is not None
+    assert item.compliance.get("passed") is False
+    assert item.gates[GATE_COMPLIANCE] is False
 
 
 def test_non_content_routes_are_not_auto_queued(tmp_path):

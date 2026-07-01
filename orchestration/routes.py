@@ -127,8 +127,9 @@ def node_human_approval_gate(state, ctx: GraphContext):
     cost_gated = state.needs_approval and state.approval_kind == "cost"
     action_gated = bool(state.gated_actions)
     compliance_failed = bool(state.compliance) and not state.compliance.get("passed", True)
+    reviewable_content = state.route in SUBMIT_TO_REVIEW_ROUTES and bool((state.output or "").strip())
 
-    if cost_gated or action_gated or compliance_failed:
+    if cost_gated or action_gated or (compliance_failed and not reviewable_content):
         state.needs_approval = True
         if action_gated:
             action = state.gated_actions[0]
@@ -166,14 +167,15 @@ def node_execution_agent(state, ctx: GraphContext):
 
 
 def _maybe_submit_to_review(state, ctx: GraphContext) -> bool:
-    """Queue a publishable, compliance-passing content draft into the review surface. Internal only."""
+    """Queue a publishable content draft into the review surface. Internal only.
+
+    Compliance warnings are stored on the review item instead of spawning orphaned publish actions.
+    """
     if ctx.review_store is None or state.route not in SUBMIT_TO_REVIEW_ROUTES:
         return False
     if not (state.output or "").strip():
         return False
     comp = state.compliance or {}
-    if not comp.get("passed", False):
-        return False  # only queue drafts that passed compliance; others wait for revision
     try:
         from review.models import make_review_item
         item = make_review_item(

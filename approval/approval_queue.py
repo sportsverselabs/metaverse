@@ -31,7 +31,7 @@ GATED_ACTIONS = frozenset({
 # Keyword hints -> gated action, used to detect intent in a natural-language request.
 _ACTION_HINTS = {
     "publish_content": ("publish", "go live"),
-    "public_post": ("post to", "post on", "tweet", "instagram", "tiktok", "youtube", "public post"),
+    "public_post": ("post to", "post on", "tweet", "public post", "upload to"),
     "send_email": ("send email", "email the", "send an email", "newsletter"),
     "website_change": ("change the website", "edit the site", "update the page", "deploy site"),
     "vps_config_change": ("vps", "server config", "nginx", "ssh", "reconfigure server"),
@@ -45,11 +45,40 @@ APPROVAL_APPROVED = "approved"
 APPROVAL_REJECTED = "rejected"
 
 
+_PUBLIC_RELEASE_ACTIONS = {"publish_content", "public_post"}
+_PUBLIC_RELEASE_NEGATIONS = (
+    "do not publish",
+    "don't publish",
+    "dont publish",
+    "never publish",
+    "not publish",
+    "no publishing",
+    "without publishing",
+    "do not post",
+    "don't post",
+    "dont post",
+    "never post",
+    "not post",
+    "not a public post",
+    "not public post",
+    "no posting",
+    "without posting",
+)
+
+
+def _negates_public_release(text: str) -> bool:
+    """True when the user explicitly asks for draft-only / no-public-release work."""
+    return any(phrase in text for phrase in _PUBLIC_RELEASE_NEGATIONS)
+
+
 def detect_gated_actions(text: str) -> list[str]:
     """Return gated actions implied by a natural-language request (keyword heuristic)."""
-    t = (text or "").lower()
+    t = " ".join((text or "").lower().split())
     found = []
+    negated_public_release = _negates_public_release(t)
     for action, hints in _ACTION_HINTS.items():
+        if action in _PUBLIC_RELEASE_ACTIONS and negated_public_release:
+            continue
         if any(h in t for h in hints):
             found.append(action)
     return found

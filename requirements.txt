@@ -26,3 +26,6 @@ openai>=1.0          # INSTALLED 2026-06-08 — required for DeepSeek (and OpenA
 
 # --- Optional .env loader (a pure-Python fallback is already built into core/config.py) ---
 # python-dotenv>=1.0
+
+# --- Creative Studio media generation (Phase 6) ---
+Pillow>=10.0          # required for dashboard thumbnail generation/previews
